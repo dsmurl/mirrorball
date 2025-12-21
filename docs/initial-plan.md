@@ -12,6 +12,10 @@
 - Define users, roles (dev, admin), and required permissions in-repo (AWS permissions file + Pulumi wiring).
 - Prefer no serverless functions. If an API is needed, implement it as a long-running Deno service deployed as a container (no Lambdas).
 
+Type sharing and runtime validation
+- Frontend and backend must share TypeScript types and Zod schemas from a common Nx library for all request/response payloads and core entities (e.g., `Image`, `PresignUploadInput`, `PresignUploadOutput`).
+- Use Zod for runtime validation at API boundaries. Types are inferred from schemas via `z.infer`, ensuring a single source of truth.
+
 Config-driven email domain restriction
 - Add a simple configuration to restrict who can upload based on email domain(s). Only users whose `email` claim ends with an allowed domain may access upload/delete endpoints. This must be configurable per environment (e.g., `example.com`).
 
@@ -75,6 +79,14 @@ Base path: `/api`
 
 Implementation: Deno HTTP service (e.g., using `std/http`, Hono, or Oak) running as a container. Verifies Cognito JWT (via JWKS). Uses AWS SDK v3 for JavaScript (via npm specifier under Deno) for S3 pre-sign and DynamoDB access. Exposed through CloudFront path routing to App Runner/ECS service.
 
+Schema-first contracts with Zod
+- Define request/response schemas in a shared Nx lib (see Section 14 Tasks). Example schemas:
+  - `PresignUploadInput = z.object({ contentType: z.string(), fileName: z.string().min(1), devName: z.string().min(1) })`
+  - `PresignUploadOutput = z.object({ uploadUrl: z.string().url(), objectKey: z.string(), publicUrl: z.string().url(), imageId: z.string() })`
+  - `Image = z.object({ imageId: z.string(), owner: z.string(), devName: z.string(), uploadTime: z.string(), s3Key: z.string(), publicUrl: z.string().url() })`
+- API must `safeParse` inputs and return HTTP 400 with issues when invalid.
+- API must serialize outputs using the schemas to ensure shape stability.
+
 Authorization details
 - In addition to role checks, enforce an email domain allowlist for mutating endpoints (presign-upload, confirm-upload, delete). Pseudocode:
   - Parse `email` from ID token claims.
@@ -91,6 +103,9 @@ Authorization details
   - Delete button for admin only.
 - Build: emitted assets uploaded to the same S3 bucket under `site/` prefix; images under `images/` prefix. Prefer one bucket with prefixes.
 - Nx: Frontend is an Nx app (`apps/frontend`), with tasks `nx serve frontend` and `nx build frontend`.
+
+Shared types usage
+- Import Zod schemas and inferred types from the shared Nx library. Use them to validate any data coming from the API (optional client-side safety) and to type API client functions.
 
 UX note for domain restriction
 - Read a public config var `VITE_ALLOWED_EMAIL_DOMAINS` (optional) to display an informative message on the upload screen if the signed-in user’s email is not in an allowed domain, and disable the upload button client-side. Server remains the source of truth.
@@ -126,6 +141,12 @@ Resources:
 Outputs:
 - `cloudFrontDomainName`, `bucketName`, `userPoolId`, `userPoolClientId`, `apiBaseUrl`, `tableName`.
 
+Data access approach (DynamoDB — no ORM)
+- Use AWS SDK v3 DynamoDB Document Client (v3) with small helper functions (no ORM). Keep marshalling simple and enforce shapes with Zod at the edges.
+- Provide a tiny repository layer in the API: `imagesRepo.ts` with functions `putImage`, `getImage`, `deleteImage`, `queryImagesByOwner`, and optional `scanByPrefix` patterns.
+- Rationale: smallest dependency surface, explicit control over keys/indexes, excellent fit for Deno via `npm:` imports.
+- Future note: Reassess only if data access complexity grows substantially; do not introduce an ORM in the MVP.
+
 #### 8) AWS Permissions File (in-repo)
 Create `infra/permissions/policies.json` containing:
 - Managed policies JSON for:
@@ -141,12 +162,19 @@ Create `infra/permissions/policies.json` containing:
 - Domain restriction config for dev: set `ALLOWED_EMAIL_DOMAINS=example.com` in the API environment. Optionally set `VITE_ALLOWED_EMAIL_DOMAINS=example.com` for the frontend.
 - Pulumi: `nx run infra:up` (wrapper around `pulumi up`) against `dev` stack.
 
+Shared library development
+- Shared schemas/types live in `libs/shared-schemas` (or `libs/shared`), exported as ESM. Both `apps/api` (Deno) and `apps/frontend` (Vite) import from this lib.
+- Ensure `tsconfig` path mappings or Nx project references are set so imports like `@mirrorball/shared-schemas` resolve in both apps. For Deno, use relative imports or `deno.json` `imports` mapping pointing to the compiled TS paths.
+
 #### 10) CI/CD (minimal)
 - GitHub Actions (or none to start). Optional initial workflow:
   - Lint/build frontend
   - Build and push API Docker image to ECR
   - `pulumi preview` on PR
   - On main: build site, push API image, `pulumi up` (updates infra/service), sync `site/` to S3
+
+  Type safety in CI
+  - Add a CI step to type-check the shared library and both apps against it (e.g., `nx run-many -t typecheck`). Fail the build if any contract drift occurs.
 
 Note: Prefer GitHub Actions for deployments over manual CLI. The plan below (Sections 12, 14, and the new Section 17) formalizes this and asks for docs alongside apps.
 
@@ -156,6 +184,7 @@ Note: Prefer GitHub Actions for deployments over manual CLI. The plan below (Sec
 - Idempotent Pulumi deployments.
 - Reasonable costs: on-demand DynamoDB, App Runner (or minimal ECS), CloudFront.
  - Configurability: Allowed email domains must be controlled via Pulumi stack config and surfaced as environment variables to API (and optionally frontend) without code changes.
+ - Contract single source of truth: All API request/response and core entity shapes are defined once in Zod schemas under the shared library; both apps consume inferred types.
 
 #### 12) Milestones & Deliverables
 M1 — Repo bootstrap
@@ -164,10 +193,11 @@ M1 — Repo bootstrap
     - `apps/frontend` (Vite app)
     - `apps/api` (Deno API service)
     - `infra/` (Pulumi program, permissions)
+    - `libs/shared-schemas` (Zod schemas and inferred types for contracts)
     - `docs/` (this plan)
 - Pulumi project + stack initialized
- - Docs: `docs/infra-setup.md` initial draft with stack config, AWS roles, and GitHub OIDC instructions
- - Root `README.md`: add a "Docs" index linking to all subdocs under `docs/` (see Section 17 cross-linking conventions)
+- Docs: `docs/infra-setup.md` initial draft with stack config, AWS roles, and GitHub OIDC instructions
+- Root `README.md`: add a "Docs" index linking to all subdocs under `docs/` (see Section 17 cross-linking conventions)
 
 M2 — Infra MVP
 - S3 bucket, CloudFront with OAC, basic distribution
@@ -180,6 +210,7 @@ M3 — API Service MVP
 - Containerization: Dockerfile for Deno API, ECR repo, App Runner service created via Pulumi
 - IAM roles/policies attached from `infra/permissions/policies.json`
 - Config: API reads `ALLOWED_EMAIL_DOMAINS` env and enforces domain allowlist for upload/delete
+ - Contracts: API validates inputs/outputs using shared Zod schemas; on 400/403 returns a JSON error shape defined in shared lib
  - Docs: `docs/api-local-dev.md` (how to run API locally, required env vars) and `docs/api-deploy.md` (how CI deploys API)
 
 M4 — Frontend MVP
@@ -188,6 +219,7 @@ M4 — Frontend MVP
 - List/search page
 - Delete (admin-only)
 - Optional: If `VITE_ALLOWED_EMAIL_DOMAINS` is set, UI disables upload for users not in allowed domains (server remains authoritative)
+ - Contracts: Frontend imports shared types/schemas to type API client and optionally validate responses
  - Docs: `docs/frontend-local-dev.md` (how to run locally) and `docs/frontend-deploy.md` (CI deploy steps)
 
 M5 — Deploy & Verify
@@ -205,6 +237,8 @@ M5 — Deploy & Verify
 - All resources created/updated via Pulumi; permissions defined in-repo
  - Domain restriction: Users whose `email` is not in the configured allowed domain(s) cannot obtain upload pre-sign URLs nor delete images (403), while allowed-domain users can.
  - Documentation cross-links: Root `README.md` contains a Docs index with links to all subdocs; each subdoc contains a link back to the root `README.md`.
+ - Shared contracts: A single Zod schema source compiles in both apps; API validates inputs and normalizes outputs against those schemas; CI typecheck catches drift.
+ - Data access: Minimal repository functions operate correctly against DynamoDB using the Document Client; no heavy ORM is required for MVP.
 
 #### 14) Tasks for Junie (step-by-step)
 1. Initialize repo structure
@@ -212,6 +246,7 @@ M5 — Deploy & Verify
   - Create apps: `frontend` (Vite + React + TS), `api` (Deno HTTP service)
   - Create `infra/` (Pulumi TS program) and `infra/permissions/`
   - Add `.gitignore`, root `README.md` with a Docs index linking to all files in `docs/`
+  - Create `libs/shared-schemas` library with Zod (`zod` as dependency) exporting schemas and inferred types
   - Create `docs/` placeholders for app-specific guides (see Section 17)
 2. Pulumi setup
   - Init Pulumi project in `infra/` (TypeScript program)
@@ -232,6 +267,8 @@ M5 — Deploy & Verify
   - Export `tableName`
 7. API Service (Deno container)
   - Implement endpoints in `apps/api`
+  - Add a tiny repo layer `imagesRepo.ts` using AWS SDK v3 Document Client helpers (put/get/delete/query)
+  - Validate all request/response bodies using the shared Zod schemas
   - Add Dockerfile for Deno API; create ECR repo; build and push image
   - Create App Runner service (or ECS Fargate) with execution role attached
   - Wire Pulumi stack config `allowedEmailDomains` to App Runner/ECS service environment variable `ALLOWED_EMAIL_DOMAINS` (join list by comma)
@@ -246,6 +283,7 @@ M5 — Deploy & Verify
   - Implement auth flow (Hosted UI), read groups from ID token
   - Implement upload + confirm, list/search, admin delete
   - Optional: Respect `VITE_ALLOWED_EMAIL_DOMAINS` to conditionally disable upload UI
+  - Consume shared Zod schemas for typing the API client and validating selected responses
   - Build script to publish to S3 `site/`
   - Write `docs/frontend-local-dev.md` and `docs/frontend-deploy.md` (each must include a back-link to the root `README.md`)
 10. Deploy & test
@@ -263,6 +301,9 @@ M5 — Deploy & Verify
    - A: API-only allowlist (fastest; controlled via `allowedEmailDomains` config)
    - B: Federated login with Google Workspace OIDC restricted to company domain (identity-layer enforcement; no native signup)
    - C: Disable self-registration and manually invite/create users with company emails in the user pool (no code, manual admin step)
+ - DynamoDB data access:
+   - Start with minimal helpers + Zod at edges (recommended for MVP), or adopt a library now?
+   - If library: prefer DynamoDB Toolbox for ergonomics; confirm Deno compatibility in your environment.
 
 #### 17) Documentation deliverables (living docs per app and infra)
 - Cross-linking conventions (GitHub-friendly):
