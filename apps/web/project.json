@@ -1,24 +1,27 @@
 {
-  "name": "frontend",
-  "sourceRoot": "apps/frontend/src",
+  "$schema": "https://raw.githubusercontent.com/nrwl/nx/master/packages/nx/schemas/project-schema.json",
+  "name": "web",
+  "sourceRoot": "apps/web",
   "projectType": "application",
   "targets": {
     "serve": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "vite --config apps/frontend/vite.config.ts"
+        "command": "vite",
+        "cwd": "apps/web"
       }
     },
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "vite build --config apps/frontend/vite.config.ts"
+        "command": "vite build",
+        "cwd": "apps/web"
       }
     },
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsc -p apps/frontend/tsconfig.app.json --noEmit"
+        "command": "tsc -p apps/web/tsconfig.app.json --noEmit"
       }
     }
   },

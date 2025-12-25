@@ -7,9 +7,13 @@
     "typecheck": "echo 'Typecheck is managed by Nx in CI'",
     "build": "echo 'Build is managed by Nx in CI'",
     "lint": "echo 'Lint is managed by Nx in CI'",
-    "serve": "echo 'Serve via Nx project targets (see docs)'"
+    "serve": "echo 'Serve via Nx project targets (see docs)'",
+    "prettier": "prettier . --write",
+    "prettier:check": "prettier . --check"
   },
   "devDependencies": {
+    "nx": "22.3.3",
+    "prettier": "^3.3.3",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@vitejs/plugin-react": "^4.3.1",

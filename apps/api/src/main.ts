@@ -1,21 +1,23 @@
 // Deno HTTP service implementing minimal API per plan
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+import { serve } from "jsr:@std/http@0.224.0/server";
 import { z } from "npm:zod@3.23.8";
 import {
   PresignUploadInput,
   PresignUploadOutput,
   ConfirmUploadInput,
-  ImageSchema,
-} from "../../../libs/shared-schemas/src/index.ts";
+} from "../../../libs/shared-schemas/src/api.ts";
+import { ImageSchema } from "../../../libs/shared-schemas/src/image.ts";
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from "npm:@aws-sdk/client-s3@3.958.0";
+import { DynamoDBClient } from "npm:@aws-sdk/client-dynamodb@3.958.0";
 import {
-  S3Client,
-  PutObjectCommand,
-  DeleteObjectCommand,
-} from "npm:@aws-sdk/client-s3@3.672.0";
-import { DynamoDBClient } from "npm:@aws-sdk/client-dynamodb@3.672.0";
-import { DynamoDBDocumentClient, PutCommand, UpdateCommand, DeleteCommand, ScanCommand } from "npm:@aws-sdk/lib-dynamodb@3.672.0";
-import { getSignedUrl } from "npm:@aws-sdk/s3-request-presigner@3.672.0";
-import { ulid } from "https://deno.land/std@0.224.0/ulid/mod.ts";
+  DynamoDBDocumentClient,
+  PutCommand,
+  UpdateCommand,
+  DeleteCommand,
+  ScanCommand,
+} from "npm:@aws-sdk/lib-dynamodb@3.958.0";
+import { getSignedUrl } from "npm:@aws-sdk/s3-request-presigner@3.958.0";
+import { ulid } from "jsr:@std/ulid@0.224.0";
 import * as jose from "npm:jose@5.9.3";
 
 const PORT = Number(Deno.env.get("PORT") ?? 8080);
@@ -23,7 +25,10 @@ const REGION = Deno.env.get("AWS_REGION") ?? "us-west-2";
 const BUCKET_NAME = Deno.env.get("BUCKET_NAME") ?? "";
 const TABLE_NAME = Deno.env.get("TABLE_NAME") ?? "";
 const USER_POOL_ID = Deno.env.get("USER_POOL_ID") ?? "";
-const ALLOWED_EMAIL_DOMAINS = (Deno.env.get("ALLOWED_EMAIL_DOMAINS") ?? "").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+const ALLOWED_EMAIL_DOMAINS = (Deno.env.get("ALLOWED_EMAIL_DOMAINS") ?? "")
+  .split(",")
+  .map((s) => s.trim().toLowerCase())
+  .filter(Boolean);
 
 const s3 = new S3Client({ region: REGION });
 const ddb = new DynamoDBClient({ region: REGION });
@@ -48,9 +53,13 @@ function json(body: unknown, init: ResponseInit = {}) {
   });
 }
 
-function notFound() { return error(404, "Not Found"); }
+function notFound() {
+  return error(404, "Not Found");
+}
 
-async function authenticate(req: Request): Promise<{ claims: Claims; groups: string[] } | Response> {
+async function authenticate(
+  req: Request,
+): Promise<{ claims: Claims; groups: string[] } | Response> {
   const auth = req.headers.get("authorization") || req.headers.get("Authorization");
   if (!auth || !auth.startsWith("Bearer ")) return error(401, "Missing Bearer token");
   const token = auth.slice("Bearer ".length);
@@ -59,7 +68,9 @@ async function authenticate(req: Request): Promise<{ claims: Claims; groups: str
     const { payload } = await jose.jwtVerify(token, jwks, {
       issuer: `https://cognito-idp.${REGION}.amazonaws.com/${USER_POOL_ID}`,
     });
-    const groups = Array.isArray(payload["cognito:groups"]) ? payload["cognito:groups"] as string[] : [];
+    const groups = Array.isArray(payload["cognito:groups"])
+      ? (payload["cognito:groups"] as string[])
+      : [];
     return { claims: payload as Claims, groups };
   } catch (e) {
     return error(401, "Invalid token", String(e));
@@ -79,127 +90,154 @@ function emailAllowed(email?: string): boolean {
 
 console.log(`API listening on http://localhost:${PORT}`);
 
-serve(async (req) => {
-  const url = new URL(req.url);
-  const path = url.pathname;
+serve(
+  async (req) => {
+    const url = new URL(req.url);
+    const path = url.pathname;
 
-  if (req.method === "GET" && (path === "/" || path === "/api/health")) {
-    return json({ ok: true });
-  }
-
-  // POST /api/presign-upload
-  if (req.method === "POST" && path === "/api/presign-upload") {
-    const auth = await authenticate(req); if (auth instanceof Response) return auth;
-    const { claims, groups } = auth;
-    if (!(requireRole(groups, "dev") || requireRole(groups, "admin"))) return error(403, "Forbidden");
-    if (!emailAllowed(claims.email)) return error(403, "Uploads restricted to company domain");
-
-    const body = await req.json().catch(() => ({}));
-    const parsed = PresignUploadInput.safeParse(body);
-    if (!parsed.success) return error(400, "Invalid body", parsed.error.issues);
-    const { contentType, fileName, devName } = parsed.data;
-
-    if (!BUCKET_NAME) return error(500, "BUCKET_NAME not configured");
-    if (!TABLE_NAME) return error(500, "TABLE_NAME not configured");
-
-    const imageId = ulid();
-    const owner = (claims["cognito:username"] as string) || (claims.email ?? "unknown");
-    const key = `images/${owner}/${imageId}/${fileName}`;
-
-    // Pre-sign PUT URL
-    const put = new PutObjectCommand({ Bucket: BUCKET_NAME, Key: key, ContentType: contentType });
-    const uploadUrl = await getSignedUrl(s3, put, { expiresIn: 900 });
-
-    // Compute public URL via CloudFront if available; otherwise S3 virtual-hosted style
-    const cf = Deno.env.get("CLOUDFRONT_DOMAIN")
-      ? `https://${Deno.env.get("CLOUDFRONT_DOMAIN")}/${key}`
-      : `https://${BUCKET_NAME}.s3.${REGION}.amazonaws.com/${key}`;
-
-    const now = new Date().toISOString();
-    // Write stub item (pending)
-    await doc.send(new PutCommand({
-      TableName: TABLE_NAME,
-      Item: {
-        imageId,
-        owner,
-        devName,
-        uploadTime: now,
-        s3Key: key,
-        publicUrl: cf,
-        status: "pending",
-      },
-      ConditionExpression: "attribute_not_exists(imageId)",
-    }));
-
-    const out: z.infer<typeof PresignUploadOutput> = { uploadUrl, objectKey: key, publicUrl: cf, imageId };
-    return json(out);
-  }
-
-  // POST /api/confirm-upload
-  if (req.method === "POST" && path === "/api/confirm-upload") {
-    const auth = await authenticate(req); if (auth instanceof Response) return auth;
-    const { claims, groups } = auth;
-    if (!(requireRole(groups, "dev") || requireRole(groups, "admin"))) return error(403, "Forbidden");
-    if (!emailAllowed(claims.email)) return error(403, "Uploads restricted to company domain");
-    const body = await req.json().catch(() => ({}));
-    const parsed = ConfirmUploadInput.safeParse(body);
-    if (!parsed.success) return error(400, "Invalid body", parsed.error.issues);
-    const { imageId } = parsed.data;
-    if (!TABLE_NAME) return error(500, "TABLE_NAME not configured");
-    await doc.send(new UpdateCommand({
-      TableName: TABLE_NAME,
-      Key: { imageId },
-      UpdateExpression: "SET #s = :s",
-      ExpressionAttributeNames: { "#s": "status" },
-      ExpressionAttributeValues: { ":s": "complete" },
-      ConditionExpression: "attribute_exists(imageId)",
-    }));
-    return json({ ok: true });
-  }
-
-  // GET /api/images (simple scan with optional owner/devName prefix filtering for MVP)
-  if (req.method === "GET" && path === "/api/images") {
-    const auth = await authenticate(req); if (auth instanceof Response) return auth;
-    const { searchParams } = new URL(req.url);
-    const owner = searchParams.get("owner") ?? undefined;
-    const devName = searchParams.get("devName") ?? undefined;
-    const limit = Math.min(Number(searchParams.get("limit") ?? 50), 100);
-    const data = await doc.send(new ScanCommand({ TableName: TABLE_NAME, Limit: limit }));
-    const items = (data.Items ?? []).filter((it: any) => (
-      (owner ? it.owner === owner : true) &&
-      (devName ? it.devName === devName : true)
-    ));
-    const parsed = z.array(ImageSchema).safeParse(items.map((i: any) => ({
-      imageId: i.imageId,
-      owner: i.owner,
-      devName: i.devName,
-      uploadTime: i.uploadTime,
-      s3Key: i.s3Key,
-      publicUrl: i.publicUrl,
-    })));
-    if (!parsed.success) return error(500, "Corrupt data", parsed.error.issues);
-    return json({ items: parsed.data, cursor: null });
-  }
-
-  // DELETE /api/images/:imageId
-  if (req.method === "DELETE" && path.startsWith("/api/images/")) {
-    const auth = await authenticate(req); if (auth instanceof Response) return auth;
-    const { claims, groups } = auth;
-    if (!requireRole(groups, "admin")) return error(403, "Admin only");
-    if (!emailAllowed(claims.email)) return error(403, "Uploads restricted to company domain");
-    const imageId = path.split("/").pop()!;
-    // Fetch item to get s3Key
-    const data = await doc.send(new ScanCommand({ TableName: TABLE_NAME, Limit: 1, FilterExpression: "imageId = :id", ExpressionAttributeValues: { ":id": imageId } }));
-    const item = (data.Items ?? [])[0];
-    if (!item) return notFound();
-    const key = item.s3Key as string;
-    // Delete S3 object and DDB item
-    if (BUCKET_NAME && key) {
-      await s3.send(new DeleteObjectCommand({ Bucket: BUCKET_NAME, Key: key }));
+    if (req.method === "GET" && (path === "/" || path === "/api/health")) {
+      return json({ ok: true });
     }
-    await doc.send(new DeleteCommand({ TableName: TABLE_NAME, Key: { imageId } }));
-    return json({ ok: true });
-  }
 
-  return notFound();
-}, { port: PORT });
+    // POST /api/presign-upload
+    if (req.method === "POST" && path === "/api/presign-upload") {
+      const auth = await authenticate(req);
+      if (auth instanceof Response) return auth;
+      const { claims, groups } = auth;
+      if (!(requireRole(groups, "dev") || requireRole(groups, "admin")))
+        return error(403, "Forbidden");
+      if (!emailAllowed(claims.email)) return error(403, "Uploads restricted to company domain");
+
+      const body = await req.json().catch(() => ({}));
+      const parsed = PresignUploadInput.safeParse(body);
+      if (!parsed.success) return error(400, "Invalid body", parsed.error.issues);
+      const { contentType, fileName, devName } = parsed.data;
+
+      if (!BUCKET_NAME) return error(500, "BUCKET_NAME not configured");
+      if (!TABLE_NAME) return error(500, "TABLE_NAME not configured");
+
+      const imageId = ulid();
+      const owner = (claims["cognito:username"] as string) || (claims.email ?? "unknown");
+      const key = `images/${owner}/${imageId}/${fileName}`;
+
+      // Pre-sign PUT URL
+      const put = new PutObjectCommand({ Bucket: BUCKET_NAME, Key: key, ContentType: contentType });
+      const uploadUrl = await getSignedUrl(s3, put, { expiresIn: 900 });
+
+      // Compute public URL via CloudFront if available; otherwise S3 virtual-hosted style
+      const cf = Deno.env.get("CLOUDFRONT_DOMAIN")
+        ? `https://${Deno.env.get("CLOUDFRONT_DOMAIN")}/${key}`
+        : `https://${BUCKET_NAME}.s3.${REGION}.amazonaws.com/${key}`;
+
+      const now = new Date().toISOString();
+      // Write stub item (pending)
+      await doc.send(
+        new PutCommand({
+          TableName: TABLE_NAME,
+          Item: {
+            imageId,
+            owner,
+            devName,
+            uploadTime: now,
+            s3Key: key,
+            publicUrl: cf,
+            status: "pending",
+          },
+          ConditionExpression: "attribute_not_exists(imageId)",
+        }),
+      );
+
+      const out: z.infer<typeof PresignUploadOutput> = {
+        uploadUrl,
+        objectKey: key,
+        publicUrl: cf,
+        imageId,
+      };
+      return json(out);
+    }
+
+    // POST /api/confirm-upload
+    if (req.method === "POST" && path === "/api/confirm-upload") {
+      const auth = await authenticate(req);
+      if (auth instanceof Response) return auth;
+      const { claims, groups } = auth;
+      if (!(requireRole(groups, "dev") || requireRole(groups, "admin")))
+        return error(403, "Forbidden");
+      if (!emailAllowed(claims.email)) return error(403, "Uploads restricted to company domain");
+      const body = await req.json().catch(() => ({}));
+      const parsed = ConfirmUploadInput.safeParse(body);
+      if (!parsed.success) return error(400, "Invalid body", parsed.error.issues);
+      const { imageId } = parsed.data;
+      if (!TABLE_NAME) return error(500, "TABLE_NAME not configured");
+      await doc.send(
+        new UpdateCommand({
+          TableName: TABLE_NAME,
+          Key: { imageId },
+          UpdateExpression: "SET #s = :s",
+          ExpressionAttributeNames: { "#s": "status" },
+          ExpressionAttributeValues: { ":s": "complete" },
+          ConditionExpression: "attribute_exists(imageId)",
+        }),
+      );
+      return json({ ok: true });
+    }
+
+    // GET /api/images (simple scan with optional owner/devName prefix filtering for MVP)
+    if (req.method === "GET" && path === "/api/images") {
+      const auth = await authenticate(req);
+      if (auth instanceof Response) return auth;
+      const { searchParams } = new URL(req.url);
+      const owner = searchParams.get("owner") ?? undefined;
+      const devName = searchParams.get("devName") ?? undefined;
+      const limit = Math.min(Number(searchParams.get("limit") ?? 50), 100);
+      const data = await doc.send(new ScanCommand({ TableName: TABLE_NAME, Limit: limit }));
+      const items = (data.Items ?? []).filter(
+        (it: any) =>
+          (owner ? it.owner === owner : true) && (devName ? it.devName === devName : true),
+      );
+      const parsed = z.array(ImageSchema).safeParse(
+        items.map((i: any) => ({
+          imageId: i.imageId,
+          owner: i.owner,
+          devName: i.devName,
+          uploadTime: i.uploadTime,
+          s3Key: i.s3Key,
+          publicUrl: i.publicUrl,
+        })),
+      );
+      if (!parsed.success) return error(500, "Corrupt data", parsed.error.issues);
+      return json({ items: parsed.data, cursor: null });
+    }
+
+    // DELETE /api/images/:imageId
+    if (req.method === "DELETE" && path.startsWith("/api/images/")) {
+      const auth = await authenticate(req);
+      if (auth instanceof Response) return auth;
+      const { claims, groups } = auth;
+      if (!requireRole(groups, "admin")) return error(403, "Admin only");
+      if (!emailAllowed(claims.email)) return error(403, "Uploads restricted to company domain");
+      const imageId = path.split("/").pop()!;
+      // Fetch item to get s3Key
+      const data = await doc.send(
+        new ScanCommand({
+          TableName: TABLE_NAME,
+          Limit: 1,
+          FilterExpression: "imageId = :id",
+          ExpressionAttributeValues: { ":id": imageId },
+        }),
+      );
+      const item = (data.Items ?? [])[0];
+      if (!item) return notFound();
+      const key = item.s3Key as string;
+      // Delete S3 object and DDB item
+      if (BUCKET_NAME && key) {
+        await s3.send(new DeleteObjectCommand({ Bucket: BUCKET_NAME, Key: key }));
+      }
+      await doc.send(new DeleteCommand({ TableName: TABLE_NAME, Key: { imageId } }));
+      return json({ ok: true });
+    }
+
+    return notFound();
+  },
+  { port: PORT },
+);

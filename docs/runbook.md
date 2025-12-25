@@ -5,10 +5,12 @@ Back to [root README](../README.md)
 Use this checklist after a fresh deploy to validate core functionality.
 
 ## Pre-requisites
+
 - GitHub OIDC roles exist: `mirrorball-deployer`, `mirrorball-destroyer`.
 - Pulumi stack configured in `apps/infra/` (region us-west-2; optional `allowedEmailDomains`).
 
 ## Infra validation
+
 - Pulumi outputs collected:
   - CloudFront domain name
   - S3 bucket name
@@ -17,10 +19,12 @@ Use this checklist after a fresh deploy to validate core functionality.
   - API base URL (App Runner)
 
 ## Auth
+
 - Sign in via Cognito Hosted UI.
 - Confirm `cognito:groups` contains `dev` for a dev user and `admin` for an admin user.
 
 ## API
+
 - Health: `GET /api/health` returns 200.
 - As dev/admin, request `POST /api/presign-upload` and receive a valid pre-signed URL.
 - Upload file to S3 using the pre-signed URL and call `POST /api/confirm-upload`.
@@ -30,12 +34,14 @@ Use this checklist after a fresh deploy to validate core functionality.
 - If `allowedEmailDomains` is set, verify users outside allowed domains receive 403 on mutating endpoints.
 
 ## Frontend
+
 - App loads from CloudFront domain.
 - Login works and displays user role.
 - Upload flow completes and image appears in the list; thumbnails load from CloudFront.
 - Admin-only delete is visible and functional.
 
 ## Operations
+
 - Frontend deploy syncs `dist/` to `s3://<bucket>/site/`.
 - Optional CloudFront invalidation executes successfully.
 - Destroy workflow (`mirrorball-destroyer`) removes all resources after confirmation.

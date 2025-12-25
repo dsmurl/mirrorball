@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   deploy:
@@ -24,8 +24,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
+          node-version: "20"
+          cache: "pnpm"
 
       - name: Install deps
         run: pnpm install --frozen-lockfile=false
@@ -80,14 +80,14 @@ jobs:
           echo "bucket=$(pulumi stack output --stack $STACK_NAME bucketName)" >> $GITHUB_OUTPUT
           echo "cfid=$(pulumi stack output --stack $STACK_NAME cloudFrontDistributionId)" >> $GITHUB_OUTPUT
 
-      - name: Build frontend
-        run: pnpm nx build frontend
+      - name: Build web
+        run: pnpm nx build web
 
       - name: Sync site to S3
         env:
           BUCKET: ${{ steps.outs.outputs.bucket }}
         run: |
-          aws s3 sync apps/frontend/dist "s3://$BUCKET/site" --delete
+          aws s3 sync apps/web/dist "s3://$BUCKET/site" --delete
 
       - name: Create CloudFront invalidation
         if: ${{ steps.outs.outputs.cfid != '' }}

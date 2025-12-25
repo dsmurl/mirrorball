@@ -6,9 +6,6 @@
     "strict": true,
     "jsx": "react-jsx",
     "baseUrl": ".",
-    "paths": {
-      "@mirrorball/shared-schemas": ["libs/shared-schemas/src/index.ts"]
-    },
     "types": []
   },
   "exclude": ["node_modules", "dist"]

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const ImageSchema = z.object({
   imageId: z.string(),
@@ -6,7 +6,7 @@ export const ImageSchema = z.object({
   devName: z.string(),
   uploadTime: z.string(),
   s3Key: z.string(),
-  publicUrl: z.string().url()
+  publicUrl: z.string().url(),
 });
 
 export type Image = z.infer<typeof ImageSchema>;
@@ -16,7 +16,7 @@ export const ListImagesQuerySchema = z.object({
   devName: z.string().optional(),
   prefix: z.string().optional(),
   limit: z.number().int().positive().max(100).optional(),
-  cursor: z.string().optional()
+  cursor: z.string().optional(),
 });
 
 export type ListImagesQuery = z.infer<typeof ListImagesQuerySchema>;
