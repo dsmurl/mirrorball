@@ -2,11 +2,16 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "ESNext",
-    "moduleResolution": "Node",
+    "moduleResolution": "Bundler",
     "strict": true,
     "jsx": "react-jsx",
     "baseUrl": ".",
-    "types": []
+    "paths": {
+      "@mirrorball/shared-schemas/*": ["libs/shared-schemas/src/*"]
+    },
+    "types": [],
+    "allowImportingTsExtensions": true,
+    "noEmit": true
   },
   "exclude": ["node_modules", "dist"]
 }

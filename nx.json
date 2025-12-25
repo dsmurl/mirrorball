@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/nx.json",
-  "nxVersion": "19.5.0",
+  "nxVersion": "22.3.3",
   "defaultBase": "main",
   "workspaceLayout": {
     "appsDir": "apps",

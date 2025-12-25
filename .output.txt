@@ -1,0 +1,721 @@
+local: /Users/dsmurl/Development/projects/mirrorball/apps/api/src/main.ts
+type: TypeScript
+dependencies: 171 unique
+size: 12.73MB
+file:///Users/dsmurl/Development/projects/mirrorball/apps/api/src/main.ts (8.75KB)
+├─┬ https://jsr.io/@std/http/0.224.0/mod.ts (2.34KB)
+│ ├─┬ https://jsr.io/@std/http/0.224.0/cookie.ts (11.01KB)
+│ │ └─┬ https://jsr.io/@std/assert/0.224.0/assert.ts (562B)
+│ │   └── https://jsr.io/@std/assert/0.224.0/assertion_error.ts (484B)
+│ ├─┬ https://jsr.io/@std/http/0.224.0/etag.ts (5.95KB)
+│ │ └─┬ https://jsr.io/@std/encoding/0.224.3/base64.ts (3.26KB)
+│ │   └── https://jsr.io/@std/encoding/0.224.3/_validate_binary_like.ts (798B)
+│ ├── https://jsr.io/@std/http/0.224.0/status.ts (11.27KB)
+│ ├─┬ https://jsr.io/@std/http/0.224.0/negotiation.ts (5.25KB)
+│ │ ├─┬ https://jsr.io/@std/http/0.224.0/_negotiation/encoding.ts (4.2KB)
+│ │ │ └── https://jsr.io/@std/http/0.224.0/_negotiation/common.ts (1.76KB)
+│ │ ├─┬ https://jsr.io/@std/http/0.224.0/_negotiation/language.ts (4.05KB)
+│ │ │ └── https://jsr.io/@std/http/0.224.0/_negotiation/common.ts *
+│ │ └─┬ https://jsr.io/@std/http/0.224.0/_negotiation/media_type.ts (4.85KB)
+│ │   └── https://jsr.io/@std/http/0.224.0/_negotiation/common.ts *
+│ ├─┬ https://jsr.io/@std/http/0.224.0/server.ts (22.67KB)
+│ │ └── https://jsr.io/@std/async/0.224.2/delay.ts (1.87KB)
+│ ├─┬ https://jsr.io/@std/http/0.224.0/unstable_signed_cookie.ts (3.19KB)
+│ │ └─┬ https://jsr.io/@std/encoding/0.224.3/hex.ts (3.02KB)
+│ │   └── https://jsr.io/@std/encoding/0.224.3/_validate_binary_like.ts *
+│ ├── https://jsr.io/@std/http/0.224.0/server_sent_event_stream.ts (2.69KB)
+│ ├─┬ https://jsr.io/@std/http/0.224.0/user_agent.ts (31.26KB)
+│ │ └── https://jsr.io/@std/assert/0.224.0/assert.ts *
+│ └─┬ https://jsr.io/@std/http/0.224.0/file_server.ts (24.6KB)
+│   ├─┬ https://jsr.io/@std/path/0.224.0/posix/join.ts (721B)
+│   │ ├── https://jsr.io/@std/path/0.224.0/_common/assert_path.ts (307B)
+│   │ └─┬ https://jsr.io/@std/path/0.224.0/posix/normalize.ts (1.03KB)
+│   │   ├─┬ https://jsr.io/@std/path/0.224.0/_common/normalize.ts (263B)
+│   │   │ └── https://jsr.io/@std/path/0.224.0/_common/assert_path.ts *
+│   │   ├─┬ https://jsr.io/@std/path/0.224.0/_common/normalize_string.ts (2.25KB)
+│   │   │ └── https://jsr.io/@std/path/0.224.0/_common/constants.ts (1.97KB)
+│   │   └─┬ https://jsr.io/@std/path/0.224.0/posix/_util.ts (391B)
+│   │     └── https://jsr.io/@std/path/0.224.0/_common/constants.ts *
+│   ├── https://jsr.io/@std/path/0.224.0/posix/normalize.ts *
+│   ├─┬ https://jsr.io/@std/path/0.224.0/extname.ts (547B)
+│   │ ├── https://jsr.io/@std/path/0.224.0/_os.ts (705B)
+│   │ ├─┬ https://jsr.io/@std/path/0.224.0/posix/extname.ts (2.13KB)
+│   │ │ ├── https://jsr.io/@std/path/0.224.0/_common/constants.ts *
+│   │ │ ├── https://jsr.io/@std/path/0.224.0/_common/assert_path.ts *
+│   │ │ └── https://jsr.io/@std/path/0.224.0/posix/_util.ts *
+│   │ └─┬ https://jsr.io/@std/path/0.224.0/windows/extname.ts (2.29KB)
+│   │   ├── https://jsr.io/@std/path/0.224.0/_common/constants.ts *
+│   │   ├── https://jsr.io/@std/path/0.224.0/_common/assert_path.ts *
+│   │   └─┬ https://jsr.io/@std/path/0.224.0/windows/_util.ts (828B)
+│   │     └── https://jsr.io/@std/path/0.224.0/_common/constants.ts *
+│   ├─┬ https://jsr.io/@std/path/0.224.0/join.ts (510B)
+│   │ ├── https://jsr.io/@std/path/0.224.0/_os.ts *
+│   │ ├── https://jsr.io/@std/path/0.224.0/posix/join.ts *
+│   │ └─┬ https://jsr.io/@std/path/0.224.0/windows/join.ts (2.42KB)
+│   │   ├── https://jsr.io/@std/assert/0.224.0/assert.ts *
+│   │   ├── https://jsr.io/@std/path/0.224.0/_common/assert_path.ts *
+│   │   ├── https://jsr.io/@std/path/0.224.0/windows/_util.ts *
+│   │   └─┬ https://jsr.io/@std/path/0.224.0/windows/normalize.ts (3.7KB)
+│   │     ├── https://jsr.io/@std/path/0.224.0/_common/normalize.ts *
+│   │     ├── https://jsr.io/@std/path/0.224.0/_common/constants.ts *
+│   │     ├── https://jsr.io/@std/path/0.224.0/_common/normalize_string.ts *
+│   │     └── https://jsr.io/@std/path/0.224.0/windows/_util.ts *
+│   ├─┬ https://jsr.io/@std/path/0.224.0/relative.ts (788B)
+│   │ ├── https://jsr.io/@std/path/0.224.0/_os.ts *
+│   │ ├─┬ https://jsr.io/@std/path/0.224.0/posix/relative.ts (2.93KB)
+│   │ │ ├── https://jsr.io/@std/path/0.224.0/posix/_util.ts *
+│   │ │ ├─┬ https://jsr.io/@std/path/0.224.0/posix/resolve.ts (1.55KB)
+│   │ │ │ ├── https://jsr.io/@std/path/0.224.0/_common/normalize_string.ts *
+│   │ │ │ ├── https://jsr.io/@std/path/0.224.0/_common/assert_path.ts *
+│   │ │ │ └── https://jsr.io/@std/path/0.224.0/posix/_util.ts *
+│   │ │ └─┬ https://jsr.io/@std/path/0.224.0/_common/relative.ts (287B)
+│   │ │   └── https://jsr.io/@std/path/0.224.0/_common/assert_path.ts *
+│   │ └─┬ https://jsr.io/@std/path/0.224.0/windows/relative.ts (3.88KB)
+│   │   ├── https://jsr.io/@std/path/0.224.0/_common/constants.ts *
+│   │   ├─┬ https://jsr.io/@std/path/0.224.0/windows/resolve.ts (4.73KB)
+│   │   │ ├── https://jsr.io/@std/path/0.224.0/_common/constants.ts *
+│   │   │ ├── https://jsr.io/@std/path/0.224.0/_common/normalize_string.ts *
+│   │   │ ├── https://jsr.io/@std/path/0.224.0/_common/assert_path.ts *
+│   │   │ └── https://jsr.io/@std/path/0.224.0/windows/_util.ts *
+│   │   └── https://jsr.io/@std/path/0.224.0/_common/relative.ts *
+│   ├─┬ https://jsr.io/@std/path/0.224.0/resolve.ts (528B)
+│   │ ├── https://jsr.io/@std/path/0.224.0/_os.ts *
+│   │ ├── https://jsr.io/@std/path/0.224.0/posix/resolve.ts *
+│   │ └── https://jsr.io/@std/path/0.224.0/windows/resolve.ts *
+│   ├─┬ https://jsr.io/@std/path/0.224.0/constants.ts (348B)
+│   │ └── https://jsr.io/@std/path/0.224.0/_os.ts *
+│   ├─┬ https://jsr.io/@std/media-types/0.224.1/content_type.ts (3.47KB)
+│   │ ├─┬ https://jsr.io/@std/media-types/0.224.1/parse_media_type.ts (3.55KB)
+│   │ │ └── https://jsr.io/@std/media-types/0.224.1/_util.ts (3.18KB)
+│   │ ├─┬ https://jsr.io/@std/media-types/0.224.1/get_charset.ts (1.46KB)
+│   │ │ ├── https://jsr.io/@std/media-types/0.224.1/parse_media_type.ts *
+│   │ │ ├── https://jsr.io/@std/media-types/0.224.1/_util.ts *
+│   │ │ └─┬ https://jsr.io/@std/media-types/0.224.1/_db.ts (1.32KB)
+│   │ │   ├── https://jsr.io/@std/media-types/0.224.1/vendor/mime-db.v1.52.0.ts (182.13KB)
+│   │ │   └── https://jsr.io/@std/media-types/0.224.1/_util.ts *
+│   │ ├─┬ https://jsr.io/@std/media-types/0.224.1/format_media_type.ts (2.47KB)
+│   │ │ └── https://jsr.io/@std/media-types/0.224.1/_util.ts *
+│   │ ├── https://jsr.io/@std/media-types/0.224.1/_db.ts *
+│   │ └─┬ https://jsr.io/@std/media-types/0.224.1/type_by_extension.ts (1.17KB)
+│   │   └── https://jsr.io/@std/media-types/0.224.1/_db.ts *
+│   ├── https://jsr.io/@std/http/0.224.0/etag.ts *
+│   ├── https://jsr.io/@std/http/0.224.0/status.ts *
+│   ├── https://jsr.io/@std/streams/0.224.5/byte_slice_stream.ts (2.59KB)
+│   ├── https://jsr.io/@std/cli/0.224.7/parse_args.ts (21.74KB)
+│   ├── https://jsr.io/@std/fmt/0.224.0/colors.ts (12.57KB)
+│   ├── https://jsr.io/@std/http/0.224.0/deno.json (461B)
+│   └── https://jsr.io/@std/fmt/0.224.0/bytes.ts (4.43KB)
+├── npm:/zod@3.23.8 (651.16KB)
+├─┬ file:///Users/dsmurl/Development/projects/mirrorball/libs/shared-schemas/src/api.ts (790B)
+│ └── npm:/zod@3.23.8 *
+├─┬ file:///Users/dsmurl/Development/projects/mirrorball/libs/shared-schemas/src/image.ts (576B)
+│ └── npm:/zod@3.23.8 *
+├─┬ npm:/@aws-sdk/client-s3@3.958.0 (3.05MB)
+│ ├─┬ npm:/@aws-crypto/sha1-browser@5.2.0 (37.45KB)
+│ │ ├─┬ npm:/@aws-crypto/supports-web-crypto@5.2.0 (27.7KB)
+│ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ ├─┬ npm:/@aws-crypto/util@5.2.0 (29.93KB)
+│ │ │ ├─┬ npm:/@aws-sdk/types@3.957.0 (44KB)
+│ │ │ │ ├─┬ npm:/@smithy/types@4.11.0 (271.37KB)
+│ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ ├─┬ npm:/@smithy/util-utf8@2.3.0 (18.9KB)
+│ │ │ │ ├─┬ npm:/@smithy/util-buffer-from@2.2.0 (16.73KB)
+│ │ │ │ │ ├─┬ npm:/@smithy/is-array-buffer@2.2.0 (15.01KB)
+│ │ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ ├─┬ npm:/@aws-sdk/util-locate-window@3.957.0 (13.71KB)
+│ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ ├── npm:/@smithy/util-utf8@2.3.0 (18.9KB) *
+│ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ ├─┬ npm:/@aws-crypto/sha256-browser@5.2.0 (42.04KB)
+│ │ ├─┬ npm:/@aws-crypto/sha256-js@5.2.0 (125.7KB)
+│ │ │ ├── npm:/@aws-crypto/util@5.2.0 (29.93KB) *
+│ │ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ ├── npm:/@aws-crypto/supports-web-crypto@5.2.0 (27.7KB) *
+│ │ ├── npm:/@aws-crypto/util@5.2.0 (29.93KB) *
+│ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ ├── npm:/@aws-sdk/util-locate-window@3.957.0 (13.71KB) *
+│ │ ├── npm:/@smithy/util-utf8@2.3.0 (18.9KB) *
+│ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ ├── npm:/@aws-crypto/sha256-js@5.2.0 (125.7KB) *
+│ ├─┬ npm:/@aws-sdk/core@3.957.0 (352.89KB)
+│ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ ├─┬ npm:/@aws-sdk/xml-builder@3.957.0 (26.83KB)
+│ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ ├─┬ npm:/fast-xml-parser@5.2.5 (555.1KB)
+│ │ │ │ └── npm:/strnum@2.1.2 (23.17KB)
+│ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ ├─┬ npm:/@smithy/core@3.20.0 (437.87KB)
+│ │ │ ├─┬ npm:/@smithy/middleware-serde@4.2.8 (25KB)
+│ │ │ │ ├─┬ npm:/@smithy/protocol-http@5.3.7 (40.56KB)
+│ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ ├── npm:/@smithy/protocol-http@5.3.7 (40.56KB) *
+│ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ ├─┬ npm:/@smithy/util-base64@4.3.0 (26.39KB)
+│ │ │ │ ├─┬ npm:/@smithy/util-buffer-from@4.2.0 (15.63KB)
+│ │ │ │ │ ├─┬ npm:/@smithy/is-array-buffer@4.2.0 (14KB)
+│ │ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ ├─┬ npm:/@smithy/util-utf8@4.2.0 (17.55KB)
+│ │ │ │ │ ├── npm:/@smithy/util-buffer-from@4.2.0 (15.63KB) *
+│ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ ├─┬ npm:/@smithy/util-body-length-browser@4.2.0 (15.66KB)
+│ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ ├─┬ npm:/@smithy/util-middleware@4.2.7 (15.46KB)
+│ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ ├─┬ npm:/@smithy/util-stream@4.5.8 (83.91KB)
+│ │ │ │ ├─┬ npm:/@smithy/fetch-http-handler@5.3.8 (33.62KB)
+│ │ │ │ │ ├── npm:/@smithy/protocol-http@5.3.7 (40.56KB) *
+│ │ │ │ │ ├─┬ npm:/@smithy/querystring-builder@4.2.7 (15.12KB)
+│ │ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ │ ├─┬ npm:/@smithy/util-uri-escape@4.2.0 (14.53KB)
+│ │ │ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ ├── npm:/@smithy/util-base64@4.3.0 (26.39KB) *
+│ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ ├─┬ npm:/@smithy/node-http-handler@4.4.7 (94.96KB)
+│ │ │ │ │ ├─┬ npm:/@smithy/abort-controller@4.2.7 (17.57KB)
+│ │ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ │ ├── npm:/@smithy/protocol-http@5.3.7 (40.56KB) *
+│ │ │ │ │ ├── npm:/@smithy/querystring-builder@4.2.7 (15.12KB) *
+│ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ ├── npm:/@smithy/util-base64@4.3.0 (26.39KB) *
+│ │ │ │ ├── npm:/@smithy/util-buffer-from@4.2.0 (15.63KB) *
+│ │ │ │ ├─┬ npm:/@smithy/util-hex-encoding@4.2.0 (16.17KB)
+│ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ ├── npm:/@smithy/util-utf8@4.2.0 (17.55KB) *
+│ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ ├── npm:/@smithy/util-utf8@4.2.0 (17.55KB) *
+│ │ │ ├─┬ npm:/@smithy/uuid@1.1.0 (18.17KB)
+│ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ ├─┬ npm:/@smithy/node-config-provider@4.3.7 (25.87KB)
+│ │ │ ├─┬ npm:/@smithy/property-provider@4.2.7 (33.12KB)
+│ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ ├─┬ npm:/@smithy/shared-ini-file-loader@4.4.2 (49.65KB)
+│ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ ├── npm:/@smithy/property-provider@4.2.7 (33.12KB) *
+│ │ ├── npm:/@smithy/protocol-http@5.3.7 (40.56KB) *
+│ │ ├─┬ npm:/@smithy/signature-v4@5.3.7 (98.61KB)
+│ │ │ ├── npm:/@smithy/is-array-buffer@4.2.0 (14KB) *
+│ │ │ ├── npm:/@smithy/protocol-http@5.3.7 (40.56KB) *
+│ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ ├── npm:/@smithy/util-hex-encoding@4.2.0 (16.17KB) *
+│ │ │ ├── npm:/@smithy/util-middleware@4.2.7 (15.46KB) *
+│ │ │ ├── npm:/@smithy/util-uri-escape@4.2.0 (14.53KB) *
+│ │ │ ├── npm:/@smithy/util-utf8@4.2.0 (17.55KB) *
+│ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ ├─┬ npm:/@smithy/smithy-client@4.10.2 (104.23KB)
+│ │ │ ├── npm:/@smithy/core@3.20.0 (437.87KB) *
+│ │ │ ├─┬ npm:/@smithy/middleware-endpoint@4.4.1 (60.95KB)
+│ │ │ │ ├── npm:/@smithy/core@3.20.0 (437.87KB) *
+│ │ │ │ ├── npm:/@smithy/middleware-serde@4.2.8 (25KB) *
+│ │ │ │ ├── npm:/@smithy/node-config-provider@4.3.7 (25.87KB) *
+│ │ │ │ ├── npm:/@smithy/shared-ini-file-loader@4.4.2 (49.65KB) *
+│ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ ├─┬ npm:/@smithy/url-parser@4.2.7 (14.6KB)
+│ │ │ │ │ ├─┬ npm:/@smithy/querystring-parser@4.2.7 (15.15KB)
+│ │ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ ├── npm:/@smithy/util-middleware@4.2.7 (15.46KB) *
+│ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ ├─┬ npm:/@smithy/middleware-stack@4.2.7 (42.01KB)
+│ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ ├── npm:/@smithy/protocol-http@5.3.7 (40.56KB) *
+│ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ ├── npm:/@smithy/util-stream@4.5.8 (83.91KB) *
+│ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ ├── npm:/@smithy/util-base64@4.3.0 (26.39KB) *
+│ │ ├── npm:/@smithy/util-middleware@4.2.7 (15.46KB) *
+│ │ ├── npm:/@smithy/util-utf8@4.2.0 (17.55KB) *
+│ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ ├─┬ npm:/@aws-sdk/credential-provider-node@3.958.0 (38.53KB)
+│ │ ├─┬ npm:/@aws-sdk/credential-provider-env@3.957.0 (18.19KB)
+│ │ │ ├── npm:/@aws-sdk/core@3.957.0 (352.89KB) *
+│ │ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ │ ├── npm:/@smithy/property-provider@4.2.7 (33.12KB) *
+│ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ ├─┬ npm:/@aws-sdk/credential-provider-http@3.957.0 (26.4KB)
+│ │ │ ├── npm:/@aws-sdk/core@3.957.0 (352.89KB) *
+│ │ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ │ ├── npm:/@smithy/fetch-http-handler@5.3.8 (33.62KB) *
+│ │ │ ├── npm:/@smithy/node-http-handler@4.4.7 (94.96KB) *
+│ │ │ ├── npm:/@smithy/property-provider@4.2.7 (33.12KB) *
+│ │ │ ├── npm:/@smithy/protocol-http@5.3.7 (40.56KB) *
+│ │ │ ├── npm:/@smithy/smithy-client@4.10.2 (104.23KB) *
+│ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ ├── npm:/@smithy/util-stream@4.5.8 (83.91KB) *
+│ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ ├─┬ npm:/@aws-sdk/credential-provider-ini@3.958.0 (51.69KB)
+│ │ │ ├── npm:/@aws-sdk/core@3.957.0 (352.89KB) *
+│ │ │ ├── npm:/@aws-sdk/credential-provider-env@3.957.0 (18.19KB) *
+│ │ │ ├── npm:/@aws-sdk/credential-provider-http@3.957.0 (26.4KB) *
+│ │ │ ├─┬ npm:/@aws-sdk/credential-provider-login@3.958.0 (32.25KB)
+│ │ │ │ ├── npm:/@aws-sdk/core@3.957.0 (352.89KB) *
+│ │ │ │ ├─┬ npm:/@aws-sdk/nested-clients@3.958.0 (540.24KB)
+│ │ │ │ │ ├── npm:/@aws-crypto/sha256-browser@5.2.0 (42.04KB) *
+│ │ │ │ │ ├── npm:/@aws-crypto/sha256-js@5.2.0 (125.7KB) *
+│ │ │ │ │ ├── npm:/@aws-sdk/core@3.957.0 (352.89KB) *
+│ │ │ │ │ ├─┬ npm:/@aws-sdk/middleware-host-header@3.957.0 (17.62KB)
+│ │ │ │ │ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ │ │ │ │ ├── npm:/@smithy/protocol-http@5.3.7 (40.56KB) *
+│ │ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ │ ├─┬ npm:/@aws-sdk/middleware-logger@3.957.0 (17.84KB)
+│ │ │ │ │ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ │ ├─┬ npm:/@aws-sdk/middleware-recursion-detection@3.957.0 (20.01KB)
+│ │ │ │ │ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ │ │ │ │ ├── npm:/@aws/lambda-invoke-store@0.2.2 (26.83KB)
+│ │ │ │ │ │ ├── npm:/@smithy/protocol-http@5.3.7 (40.56KB) *
+│ │ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ │ ├─┬ npm:/@aws-sdk/middleware-user-agent@3.957.0 (33.95KB)
+│ │ │ │ │ │ ├── npm:/@aws-sdk/core@3.957.0 (352.89KB) *
+│ │ │ │ │ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ │ │ │ │ ├─┬ npm:/@aws-sdk/util-endpoints@3.957.0 (55.43KB)
+│ │ │ │ │ │ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ │ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ │ │ ├── npm:/@smithy/url-parser@4.2.7 (14.6KB) *
+│ │ │ │ │ │ │ ├─┬ npm:/@smithy/util-endpoints@3.2.7 (72.71KB)
+│ │ │ │ │ │ │ │ ├── npm:/@smithy/node-config-provider@4.3.7 (25.87KB) *
+│ │ │ │ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ │ │ ├── npm:/@smithy/core@3.20.0 (437.87KB) *
+│ │ │ │ │ │ ├── npm:/@smithy/protocol-http@5.3.7 (40.56KB) *
+│ │ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ │ ├─┬ npm:/@aws-sdk/region-config-resolver@3.957.0 (21.02KB)
+│ │ │ │ │ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ │ │ │ │ ├─┬ npm:/@smithy/config-resolver@4.4.5 (51.38KB)
+│ │ │ │ │ │ │ ├── npm:/@smithy/node-config-provider@4.3.7 (25.87KB) *
+│ │ │ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ │ │ ├─┬ npm:/@smithy/util-config-provider@4.2.0 (17.06KB)
+│ │ │ │ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ │ │ │ ├── npm:/@smithy/util-endpoints@3.2.7 (72.71KB) *
+│ │ │ │ │ │ │ ├── npm:/@smithy/util-middleware@4.2.7 (15.46KB) *
+│ │ │ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ │ │ ├── npm:/@smithy/node-config-provider@4.3.7 (25.87KB) *
+│ │ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ │ │ │ ├── npm:/@aws-sdk/util-endpoints@3.957.0 (55.43KB) *
+│ │ │ │ │ ├─┬ npm:/@aws-sdk/util-user-agent-browser@3.957.0 (27.04KB)
+│ │ │ │ │ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ │ ├── npm:/bowser@2.13.1 (246.12KB)
+│ │ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ │ ├─┬ npm:/@aws-sdk/util-user-agent-node@3.957.0 (19.87KB)
+│ │ │ │ │ │ ├── npm:/@aws-sdk/middleware-user-agent@3.957.0 (33.95KB) *
+│ │ │ │ │ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ │ │ │ │ ├── npm:/@smithy/node-config-provider@4.3.7 (25.87KB) *
+│ │ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ │ ├── npm:/@smithy/config-resolver@4.4.5 (51.38KB) *
+│ │ │ │ │ ├── npm:/@smithy/core@3.20.0 (437.87KB) *
+│ │ │ │ │ ├── npm:/@smithy/fetch-http-handler@5.3.8 (33.62KB) *
+│ │ │ │ │ ├─┬ npm:/@smithy/hash-node@4.2.7 (16.63KB)
+│ │ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ │ ├── npm:/@smithy/util-buffer-from@4.2.0 (15.63KB) *
+│ │ │ │ │ │ ├── npm:/@smithy/util-utf8@4.2.0 (17.55KB) *
+│ │ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ │ ├─┬ npm:/@smithy/invalid-dependency@4.2.7 (14.58KB)
+│ │ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ │ ├─┬ npm:/@smithy/middleware-content-length@4.2.7 (17.18KB)
+│ │ │ │ │ │ ├── npm:/@smithy/protocol-http@5.3.7 (40.56KB) *
+│ │ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ │ ├── npm:/@smithy/middleware-endpoint@4.4.1 (60.95KB) *
+│ │ │ │ │ ├─┬ npm:/@smithy/middleware-retry@4.4.17 (62.65KB)
+│ │ │ │ │ │ ├── npm:/@smithy/node-config-provider@4.3.7 (25.87KB) *
+│ │ │ │ │ │ ├── npm:/@smithy/protocol-http@5.3.7 (40.56KB) *
+│ │ │ │ │ │ ├─┬ npm:/@smithy/service-error-classification@4.2.7 (23.03KB)
+│ │ │ │ │ │ │ └── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ │ ├── npm:/@smithy/smithy-client@4.10.2 (104.23KB) *
+│ │ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ │ ├── npm:/@smithy/util-middleware@4.2.7 (15.46KB) *
+│ │ │ │ │ │ ├─┬ npm:/@smithy/util-retry@4.2.7 (53.69KB)
+│ │ │ │ │ │ │ ├── npm:/@smithy/service-error-classification@4.2.7 (23.03KB) *
+│ │ │ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ │ │ ├── npm:/@smithy/uuid@1.1.0 (18.17KB) *
+│ │ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ │ ├── npm:/@smithy/middleware-serde@4.2.8 (25KB) *
+│ │ │ │ │ ├── npm:/@smithy/middleware-stack@4.2.7 (42.01KB) *
+│ │ │ │ │ ├── npm:/@smithy/node-config-provider@4.3.7 (25.87KB) *
+│ │ │ │ │ ├── npm:/@smithy/node-http-handler@4.4.7 (94.96KB) *
+│ │ │ │ │ ├── npm:/@smithy/protocol-http@5.3.7 (40.56KB) *
+│ │ │ │ │ ├── npm:/@smithy/smithy-client@4.10.2 (104.23KB) *
+│ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ ├── npm:/@smithy/url-parser@4.2.7 (14.6KB) *
+│ │ │ │ │ ├── npm:/@smithy/util-base64@4.3.0 (26.39KB) *
+│ │ │ │ │ ├── npm:/@smithy/util-body-length-browser@4.2.0 (15.66KB) *
+│ │ │ │ │ ├─┬ npm:/@smithy/util-body-length-node@4.2.1 (15.59KB)
+│ │ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ │ ├─┬ npm:/@smithy/util-defaults-mode-browser@4.3.16 (22.07KB)
+│ │ │ │ │ │ ├── npm:/@smithy/property-provider@4.2.7 (33.12KB) *
+│ │ │ │ │ │ ├── npm:/@smithy/smithy-client@4.10.2 (104.23KB) *
+│ │ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ │ ├─┬ npm:/@smithy/util-defaults-mode-node@4.2.19 (22.58KB)
+│ │ │ │ │ │ ├── npm:/@smithy/config-resolver@4.4.5 (51.38KB) *
+│ │ │ │ │ │ ├─┬ npm:/@smithy/credential-provider-imds@4.2.7 (58.72KB)
+│ │ │ │ │ │ │ ├── npm:/@smithy/node-config-provider@4.3.7 (25.87KB) *
+│ │ │ │ │ │ │ ├── npm:/@smithy/property-provider@4.2.7 (33.12KB) *
+│ │ │ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ │ │ ├── npm:/@smithy/url-parser@4.2.7 (14.6KB) *
+│ │ │ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ │ │ ├── npm:/@smithy/node-config-provider@4.3.7 (25.87KB) *
+│ │ │ │ │ │ ├── npm:/@smithy/property-provider@4.2.7 (33.12KB) *
+│ │ │ │ │ │ ├── npm:/@smithy/smithy-client@4.10.2 (104.23KB) *
+│ │ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ │ ├── npm:/@smithy/util-endpoints@3.2.7 (72.71KB) *
+│ │ │ │ │ ├── npm:/@smithy/util-middleware@4.2.7 (15.46KB) *
+│ │ │ │ │ ├── npm:/@smithy/util-retry@4.2.7 (53.69KB) *
+│ │ │ │ │ ├── npm:/@smithy/util-utf8@4.2.0 (17.55KB) *
+│ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ │ │ ├── npm:/@smithy/property-provider@4.2.7 (33.12KB) *
+│ │ │ │ ├── npm:/@smithy/protocol-http@5.3.7 (40.56KB) *
+│ │ │ │ ├── npm:/@smithy/shared-ini-file-loader@4.4.2 (49.65KB) *
+│ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ ├─┬ npm:/@aws-sdk/credential-provider-process@3.957.0 (22.7KB)
+│ │ │ │ ├── npm:/@aws-sdk/core@3.957.0 (352.89KB) *
+│ │ │ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ │ │ ├── npm:/@smithy/property-provider@4.2.7 (33.12KB) *
+│ │ │ │ ├── npm:/@smithy/shared-ini-file-loader@4.4.2 (49.65KB) *
+│ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ ├─┬ npm:/@aws-sdk/credential-provider-sso@3.958.0 (36.37KB)
+│ │ │ │ ├─┬ npm:/@aws-sdk/client-sso@3.958.0 (186.37KB)
+│ │ │ │ │ ├── npm:/@aws-crypto/sha256-browser@5.2.0 (42.04KB) *
+│ │ │ │ │ ├── npm:/@aws-crypto/sha256-js@5.2.0 (125.7KB) *
+│ │ │ │ │ ├── npm:/@aws-sdk/core@3.957.0 (352.89KB) *
+│ │ │ │ │ ├── npm:/@aws-sdk/middleware-host-header@3.957.0 (17.62KB) *
+│ │ │ │ │ ├── npm:/@aws-sdk/middleware-logger@3.957.0 (17.84KB) *
+│ │ │ │ │ ├── npm:/@aws-sdk/middleware-recursion-detection@3.957.0 (20.01KB) *
+│ │ │ │ │ ├── npm:/@aws-sdk/middleware-user-agent@3.957.0 (33.95KB) *
+│ │ │ │ │ ├── npm:/@aws-sdk/region-config-resolver@3.957.0 (21.02KB) *
+│ │ │ │ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ │ │ │ ├── npm:/@aws-sdk/util-endpoints@3.957.0 (55.43KB) *
+│ │ │ │ │ ├── npm:/@aws-sdk/util-user-agent-browser@3.957.0 (27.04KB) *
+│ │ │ │ │ ├── npm:/@aws-sdk/util-user-agent-node@3.957.0 (19.87KB) *
+│ │ │ │ │ ├── npm:/@smithy/config-resolver@4.4.5 (51.38KB) *
+│ │ │ │ │ ├── npm:/@smithy/core@3.20.0 (437.87KB) *
+│ │ │ │ │ ├── npm:/@smithy/fetch-http-handler@5.3.8 (33.62KB) *
+│ │ │ │ │ ├── npm:/@smithy/hash-node@4.2.7 (16.63KB) *
+│ │ │ │ │ ├── npm:/@smithy/invalid-dependency@4.2.7 (14.58KB) *
+│ │ │ │ │ ├── npm:/@smithy/middleware-content-length@4.2.7 (17.18KB) *
+│ │ │ │ │ ├── npm:/@smithy/middleware-endpoint@4.4.1 (60.95KB) *
+│ │ │ │ │ ├── npm:/@smithy/middleware-retry@4.4.17 (62.65KB) *
+│ │ │ │ │ ├── npm:/@smithy/middleware-serde@4.2.8 (25KB) *
+│ │ │ │ │ ├── npm:/@smithy/middleware-stack@4.2.7 (42.01KB) *
+│ │ │ │ │ ├── npm:/@smithy/node-config-provider@4.3.7 (25.87KB) *
+│ │ │ │ │ ├── npm:/@smithy/node-http-handler@4.4.7 (94.96KB) *
+│ │ │ │ │ ├── npm:/@smithy/protocol-http@5.3.7 (40.56KB) *
+│ │ │ │ │ ├── npm:/@smithy/smithy-client@4.10.2 (104.23KB) *
+│ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ ├── npm:/@smithy/url-parser@4.2.7 (14.6KB) *
+│ │ │ │ │ ├── npm:/@smithy/util-base64@4.3.0 (26.39KB) *
+│ │ │ │ │ ├── npm:/@smithy/util-body-length-browser@4.2.0 (15.66KB) *
+│ │ │ │ │ ├── npm:/@smithy/util-body-length-node@4.2.1 (15.59KB) *
+│ │ │ │ │ ├── npm:/@smithy/util-defaults-mode-browser@4.3.16 (22.07KB) *
+│ │ │ │ │ ├── npm:/@smithy/util-defaults-mode-node@4.2.19 (22.58KB) *
+│ │ │ │ │ ├── npm:/@smithy/util-endpoints@3.2.7 (72.71KB) *
+│ │ │ │ │ ├── npm:/@smithy/util-middleware@4.2.7 (15.46KB) *
+│ │ │ │ │ ├── npm:/@smithy/util-retry@4.2.7 (53.69KB) *
+│ │ │ │ │ ├── npm:/@smithy/util-utf8@4.2.0 (17.55KB) *
+│ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ ├── npm:/@aws-sdk/core@3.957.0 (352.89KB) *
+│ │ │ │ ├─┬ npm:/@aws-sdk/token-providers@3.958.0 (37.11KB)
+│ │ │ │ │ ├── npm:/@aws-sdk/core@3.957.0 (352.89KB) *
+│ │ │ │ │ ├── npm:/@aws-sdk/nested-clients@3.958.0 (540.24KB) *
+│ │ │ │ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ │ │ │ ├── npm:/@smithy/property-provider@4.2.7 (33.12KB) *
+│ │ │ │ │ ├── npm:/@smithy/shared-ini-file-loader@4.4.2 (49.65KB) *
+│ │ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ │ │ ├── npm:/@smithy/property-provider@4.2.7 (33.12KB) *
+│ │ │ │ ├── npm:/@smithy/shared-ini-file-loader@4.4.2 (49.65KB) *
+│ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ ├─┬ npm:/@aws-sdk/credential-provider-web-identity@3.958.0 (32.24KB)
+│ │ │ │ ├── npm:/@aws-sdk/core@3.957.0 (352.89KB) *
+│ │ │ │ ├── npm:/@aws-sdk/nested-clients@3.958.0 (540.24KB) *
+│ │ │ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ │ │ ├── npm:/@smithy/property-provider@4.2.7 (33.12KB) *
+│ │ │ │ ├── npm:/@smithy/shared-ini-file-loader@4.4.2 (49.65KB) *
+│ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ ├── npm:/@aws-sdk/nested-clients@3.958.0 (540.24KB) *
+│ │ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ │ ├── npm:/@smithy/credential-provider-imds@4.2.7 (58.72KB) *
+│ │ │ ├── npm:/@smithy/property-provider@4.2.7 (33.12KB) *
+│ │ │ ├── npm:/@smithy/shared-ini-file-loader@4.4.2 (49.65KB) *
+│ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ ├── npm:/@aws-sdk/credential-provider-process@3.957.0 (22.7KB) *
+│ │ ├── npm:/@aws-sdk/credential-provider-sso@3.958.0 (36.37KB) *
+│ │ ├── npm:/@aws-sdk/credential-provider-web-identity@3.958.0 (32.24KB) *
+│ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ ├── npm:/@smithy/credential-provider-imds@4.2.7 (58.72KB) *
+│ │ ├── npm:/@smithy/property-provider@4.2.7 (33.12KB) *
+│ │ ├── npm:/@smithy/shared-ini-file-loader@4.4.2 (49.65KB) *
+│ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ ├─┬ npm:/@aws-sdk/middleware-bucket-endpoint@3.957.0 (63.25KB)
+│ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ ├─┬ npm:/@aws-sdk/util-arn-parser@3.957.0 (15.69KB)
+│ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ ├── npm:/@smithy/node-config-provider@4.3.7 (25.87KB) *
+│ │ ├── npm:/@smithy/protocol-http@5.3.7 (40.56KB) *
+│ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ ├── npm:/@smithy/util-config-provider@4.2.0 (17.06KB) *
+│ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ ├─┬ npm:/@aws-sdk/middleware-expect-continue@3.957.0 (17.79KB)
+│ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ ├── npm:/@smithy/protocol-http@5.3.7 (40.56KB) *
+│ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ ├─┬ npm:/@aws-sdk/middleware-flexible-checksums@3.957.0 (81.58KB)
+│ │ ├─┬ npm:/@aws-crypto/crc32@5.2.0 (42.85KB)
+│ │ │ ├── npm:/@aws-crypto/util@5.2.0 (29.93KB) *
+│ │ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ ├─┬ npm:/@aws-crypto/crc32c@5.2.0 (40.74KB)
+│ │ │ ├── npm:/@aws-crypto/util@5.2.0 (29.93KB) *
+│ │ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ ├── npm:/@aws-crypto/util@5.2.0 (29.93KB) *
+│ │ ├── npm:/@aws-sdk/core@3.957.0 (352.89KB) *
+│ │ ├─┬ npm:/@aws-sdk/crc64-nvme@3.957.0 (21.76KB)
+│ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ ├── npm:/@smithy/is-array-buffer@4.2.0 (14KB) *
+│ │ ├── npm:/@smithy/node-config-provider@4.3.7 (25.87KB) *
+│ │ ├── npm:/@smithy/protocol-http@5.3.7 (40.56KB) *
+│ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ ├── npm:/@smithy/util-middleware@4.2.7 (15.46KB) *
+│ │ ├── npm:/@smithy/util-stream@4.5.8 (83.91KB) *
+│ │ ├── npm:/@smithy/util-utf8@4.2.0 (17.55KB) *
+│ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ ├── npm:/@aws-sdk/middleware-host-header@3.957.0 (17.62KB) *
+│ ├─┬ npm:/@aws-sdk/middleware-location-constraint@3.957.0 (17.65KB)
+│ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ ├── npm:/@aws-sdk/middleware-logger@3.957.0 (17.84KB) *
+│ ├── npm:/@aws-sdk/middleware-recursion-detection@3.957.0 (20.01KB) *
+│ ├─┬ npm:/@aws-sdk/middleware-sdk-s3@3.957.0 (87.37KB)
+│ │ ├── npm:/@aws-sdk/core@3.957.0 (352.89KB) *
+│ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ ├── npm:/@aws-sdk/util-arn-parser@3.957.0 (15.69KB) *
+│ │ ├── npm:/@smithy/core@3.20.0 (437.87KB) *
+│ │ ├── npm:/@smithy/node-config-provider@4.3.7 (25.87KB) *
+│ │ ├── npm:/@smithy/protocol-http@5.3.7 (40.56KB) *
+│ │ ├── npm:/@smithy/signature-v4@5.3.7 (98.61KB) *
+│ │ ├── npm:/@smithy/smithy-client@4.10.2 (104.23KB) *
+│ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ ├── npm:/@smithy/util-config-provider@4.2.0 (17.06KB) *
+│ │ ├── npm:/@smithy/util-middleware@4.2.7 (15.46KB) *
+│ │ ├── npm:/@smithy/util-stream@4.5.8 (83.91KB) *
+│ │ ├── npm:/@smithy/util-utf8@4.2.0 (17.55KB) *
+│ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ ├─┬ npm:/@aws-sdk/middleware-ssec@3.957.0 (19.08KB)
+│ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ ├── npm:/@aws-sdk/middleware-user-agent@3.957.0 (33.95KB) *
+│ ├── npm:/@aws-sdk/region-config-resolver@3.957.0 (21.02KB) *
+│ ├─┬ npm:/@aws-sdk/signature-v4-multi-region@3.957.0 (31.98KB)
+│ │ ├── npm:/@aws-sdk/middleware-sdk-s3@3.957.0 (87.37KB) *
+│ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ ├── npm:/@smithy/protocol-http@5.3.7 (40.56KB) *
+│ │ ├── npm:/@smithy/signature-v4@5.3.7 (98.61KB) *
+│ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ ├── npm:/@aws-sdk/util-endpoints@3.957.0 (55.43KB) *
+│ ├── npm:/@aws-sdk/util-user-agent-browser@3.957.0 (27.04KB) *
+│ ├── npm:/@aws-sdk/util-user-agent-node@3.957.0 (19.87KB) *
+│ ├── npm:/@smithy/config-resolver@4.4.5 (51.38KB) *
+│ ├── npm:/@smithy/core@3.20.0 (437.87KB) *
+│ ├─┬ npm:/@smithy/eventstream-serde-browser@4.2.7 (23.32KB)
+│ │ ├─┬ npm:/@smithy/eventstream-serde-universal@4.2.7 (29.27KB)
+│ │ │ ├─┬ npm:/@smithy/eventstream-codec@4.2.7 (61.58KB)
+│ │ │ │ ├── npm:/@aws-crypto/crc32@5.2.0 (42.85KB) *
+│ │ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ │ ├── npm:/@smithy/util-hex-encoding@4.2.0 (16.17KB) *
+│ │ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ ├─┬ npm:/@smithy/eventstream-serde-config-resolver@4.3.7 (15.48KB)
+│ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ ├─┬ npm:/@smithy/eventstream-serde-node@4.2.7 (19.81KB)
+│ │ ├── npm:/@smithy/eventstream-serde-universal@4.2.7 (29.27KB) *
+│ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ ├── npm:/@smithy/fetch-http-handler@5.3.8 (33.62KB) *
+│ ├─┬ npm:/@smithy/hash-blob-browser@4.2.8 (14.54KB)
+│ │ ├─┬ npm:/@smithy/chunked-blob-reader@5.2.0 (14.52KB)
+│ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ ├─┬ npm:/@smithy/chunked-blob-reader-native@4.2.1 (15.74KB)
+│ │ │ ├── npm:/@smithy/util-base64@4.3.0 (26.39KB) *
+│ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ ├── npm:/@smithy/hash-node@4.2.7 (16.63KB) *
+│ ├─┬ npm:/@smithy/hash-stream-node@4.2.7 (19.35KB)
+│ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ ├── npm:/@smithy/util-utf8@4.2.0 (17.55KB) *
+│ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ ├── npm:/@smithy/invalid-dependency@4.2.7 (14.58KB) *
+│ ├─┬ npm:/@smithy/md5-js@4.2.7 (30.63KB)
+│ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ ├── npm:/@smithy/util-utf8@4.2.0 (17.55KB) *
+│ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ ├── npm:/@smithy/middleware-content-length@4.2.7 (17.18KB) *
+│ ├── npm:/@smithy/middleware-endpoint@4.4.1 (60.95KB) *
+│ ├── npm:/@smithy/middleware-retry@4.4.17 (62.65KB) *
+│ ├── npm:/@smithy/middleware-serde@4.2.8 (25KB) *
+│ ├── npm:/@smithy/middleware-stack@4.2.7 (42.01KB) *
+│ ├── npm:/@smithy/node-config-provider@4.3.7 (25.87KB) *
+│ ├── npm:/@smithy/node-http-handler@4.4.7 (94.96KB) *
+│ ├── npm:/@smithy/protocol-http@5.3.7 (40.56KB) *
+│ ├── npm:/@smithy/smithy-client@4.10.2 (104.23KB) *
+│ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ ├── npm:/@smithy/url-parser@4.2.7 (14.6KB) *
+│ ├── npm:/@smithy/util-base64@4.3.0 (26.39KB) *
+│ ├── npm:/@smithy/util-body-length-browser@4.2.0 (15.66KB) *
+│ ├── npm:/@smithy/util-body-length-node@4.2.1 (15.59KB) *
+│ ├── npm:/@smithy/util-defaults-mode-browser@4.3.16 (22.07KB) *
+│ ├── npm:/@smithy/util-defaults-mode-node@4.2.19 (22.58KB) *
+│ ├── npm:/@smithy/util-endpoints@3.2.7 (72.71KB) *
+│ ├── npm:/@smithy/util-middleware@4.2.7 (15.46KB) *
+│ ├── npm:/@smithy/util-retry@4.2.7 (53.69KB) *
+│ ├── npm:/@smithy/util-stream@4.5.8 (83.91KB) *
+│ ├── npm:/@smithy/util-utf8@4.2.0 (17.55KB) *
+│ ├─┬ npm:/@smithy/util-waiter@4.2.7 (32.67KB)
+│ │ ├── npm:/@smithy/abort-controller@4.2.7 (17.57KB) *
+│ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ └── npm:/tslib@2.8.1 (88.24KB)
+├─┬ npm:/@aws-sdk/client-dynamodb@3.958.0 (1.77MB)
+│ ├── npm:/@aws-crypto/sha256-browser@5.2.0 (42.04KB) *
+│ ├── npm:/@aws-crypto/sha256-js@5.2.0 (125.7KB) *
+│ ├── npm:/@aws-sdk/core@3.957.0 (352.89KB) *
+│ ├── npm:/@aws-sdk/credential-provider-node@3.958.0 (38.53KB) *
+│ ├─┬ npm:/@aws-sdk/dynamodb-codec@3.957.0_@aws-sdk+client-dynamodb@3.958.0 (20.46KB)
+│ │ ├── npm:/@aws-sdk/client-dynamodb@3.958.0 (1.77MB) *
+│ │ ├── npm:/@aws-sdk/core@3.957.0 (352.89KB) *
+│ │ ├── npm:/@smithy/core@3.20.0 (437.87KB) *
+│ │ ├── npm:/@smithy/smithy-client@4.10.2 (104.23KB) *
+│ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ ├── npm:/@smithy/util-base64@4.3.0 (26.39KB) *
+│ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ ├─┬ npm:/@aws-sdk/middleware-endpoint-discovery@3.957.0 (38.14KB)
+│ │ ├─┬ npm:/@aws-sdk/endpoint-cache@3.957.0 (18.8KB)
+│ │ │ ├─┬ npm:/mnemonist@0.38.3 (359.24KB)
+│ │ │ │ └── npm:/obliterator@1.6.1 (28.97KB)
+│ │ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ ├── npm:/@smithy/node-config-provider@4.3.7 (25.87KB) *
+│ │ ├── npm:/@smithy/protocol-http@5.3.7 (40.56KB) *
+│ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ ├── npm:/@aws-sdk/middleware-host-header@3.957.0 (17.62KB) *
+│ ├── npm:/@aws-sdk/middleware-logger@3.957.0 (17.84KB) *
+│ ├── npm:/@aws-sdk/middleware-recursion-detection@3.957.0 (20.01KB) *
+│ ├── npm:/@aws-sdk/middleware-user-agent@3.957.0 (33.95KB) *
+│ ├── npm:/@aws-sdk/region-config-resolver@3.957.0 (21.02KB) *
+│ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ ├── npm:/@aws-sdk/util-endpoints@3.957.0 (55.43KB) *
+│ ├── npm:/@aws-sdk/util-user-agent-browser@3.957.0 (27.04KB) *
+│ ├── npm:/@aws-sdk/util-user-agent-node@3.957.0 (19.87KB) *
+│ ├── npm:/@smithy/config-resolver@4.4.5 (51.38KB) *
+│ ├── npm:/@smithy/core@3.20.0 (437.87KB) *
+│ ├── npm:/@smithy/fetch-http-handler@5.3.8 (33.62KB) *
+│ ├── npm:/@smithy/hash-node@4.2.7 (16.63KB) *
+│ ├── npm:/@smithy/invalid-dependency@4.2.7 (14.58KB) *
+│ ├── npm:/@smithy/middleware-content-length@4.2.7 (17.18KB) *
+│ ├── npm:/@smithy/middleware-endpoint@4.4.1 (60.95KB) *
+│ ├── npm:/@smithy/middleware-retry@4.4.17 (62.65KB) *
+│ ├── npm:/@smithy/middleware-serde@4.2.8 (25KB) *
+│ ├── npm:/@smithy/middleware-stack@4.2.7 (42.01KB) *
+│ ├── npm:/@smithy/node-config-provider@4.3.7 (25.87KB) *
+│ ├── npm:/@smithy/node-http-handler@4.4.7 (94.96KB) *
+│ ├── npm:/@smithy/protocol-http@5.3.7 (40.56KB) *
+│ ├── npm:/@smithy/smithy-client@4.10.2 (104.23KB) *
+│ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ ├── npm:/@smithy/url-parser@4.2.7 (14.6KB) *
+│ ├── npm:/@smithy/util-base64@4.3.0 (26.39KB) *
+│ ├── npm:/@smithy/util-body-length-browser@4.2.0 (15.66KB) *
+│ ├── npm:/@smithy/util-body-length-node@4.2.1 (15.59KB) *
+│ ├── npm:/@smithy/util-defaults-mode-browser@4.3.16 (22.07KB) *
+│ ├── npm:/@smithy/util-defaults-mode-node@4.2.19 (22.58KB) *
+│ ├── npm:/@smithy/util-endpoints@3.2.7 (72.71KB) *
+│ ├── npm:/@smithy/util-middleware@4.2.7 (15.46KB) *
+│ ├── npm:/@smithy/util-retry@4.2.7 (53.69KB) *
+│ ├── npm:/@smithy/util-utf8@4.2.0 (17.55KB) *
+│ ├── npm:/@smithy/util-waiter@4.2.7 (32.67KB) *
+│ └── npm:/tslib@2.8.1 (88.24KB)
+├─┬ npm:/@aws-sdk/lib-dynamodb@3.958.0 (207.19KB)
+│ ├── npm:/@aws-sdk/client-dynamodb@3.958.0 (1.77MB) *
+│ ├── npm:/@aws-sdk/core@3.957.0 (352.89KB) *
+│ ├─┬ npm:/@aws-sdk/util-dynamodb@3.958.0_@aws-sdk+client-dynamodb@3.958.0 (51.3KB)
+│ │ ├── npm:/@aws-sdk/client-dynamodb@3.958.0 (1.77MB) *
+│ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ ├── npm:/@smithy/core@3.20.0 (437.87KB) *
+│ ├── npm:/@smithy/smithy-client@4.10.2 (104.23KB) *
+│ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ └── npm:/tslib@2.8.1 (88.24KB)
+├─┬ npm:/@aws-sdk/s3-request-presigner@3.958.0 (32.37KB)
+│ ├── npm:/@aws-sdk/signature-v4-multi-region@3.957.0 (31.98KB) *
+│ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ ├─┬ npm:/@aws-sdk/util-format-url@3.957.0 (15.21KB)
+│ │ ├── npm:/@aws-sdk/types@3.957.0 (44KB) *
+│ │ ├── npm:/@smithy/querystring-builder@4.2.7 (15.12KB) *
+│ │ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ │ └── npm:/tslib@2.8.1 (88.24KB)
+│ ├── npm:/@smithy/middleware-endpoint@4.4.1 (60.95KB) *
+│ ├── npm:/@smithy/protocol-http@5.3.7 (40.56KB) *
+│ ├── npm:/@smithy/smithy-client@4.10.2 (104.23KB) *
+│ ├── npm:/@smithy/types@4.11.0 (271.37KB) *
+│ └── npm:/tslib@2.8.1 (88.24KB)
+├─┬ https://jsr.io/@std/ulid/0.224.0/mod.ts (2.58KB)
+│ ├── https://jsr.io/@std/ulid/0.224.0/_util.ts (2.31KB)
+│ └── https://jsr.io/@std/ulid/0.224.0/_util.ts *
+└── npm:/jose@5.9.3 (537.91KB)

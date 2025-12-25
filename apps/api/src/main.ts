@@ -1,24 +1,24 @@
 // Deno HTTP service implementing minimal API per plan
-import { serve } from "jsr:@std/http@0.224.0/server";
-import { z } from "npm:zod@3.23.8";
+import { serve } from "@std/http";
+import { z } from "zod";
 import {
   PresignUploadInput,
   PresignUploadOutput,
   ConfirmUploadInput,
-} from "../../../libs/shared-schemas/src/api.ts";
-import { ImageSchema } from "../../../libs/shared-schemas/src/image.ts";
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from "npm:@aws-sdk/client-s3@3.958.0";
-import { DynamoDBClient } from "npm:@aws-sdk/client-dynamodb@3.958.0";
+} from "@mirrorball/shared-schemas/api.ts";
+import { ImageSchema } from "@mirrorball/shared-schemas/image.ts";
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
   PutCommand,
   UpdateCommand,
   DeleteCommand,
   ScanCommand,
-} from "npm:@aws-sdk/lib-dynamodb@3.958.0";
-import { getSignedUrl } from "npm:@aws-sdk/s3-request-presigner@3.958.0";
-import { ulid } from "jsr:@std/ulid@0.224.0";
-import * as jose from "npm:jose@5.9.3";
+} from "@aws-sdk/lib-dynamodb";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { ulid } from "@std/ulid";
+import * as jose from "jose";
 
 const PORT = Number(Deno.env.get("PORT") ?? 8080);
 const REGION = Deno.env.get("AWS_REGION") ?? "us-west-2";

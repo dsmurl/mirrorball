@@ -5,6 +5,7 @@
     "typecheck": "deno check src/main.ts"
   },
   "imports": {
-    "zod": "npm:zod@3.23.8"
+    "@std/http": "jsr:@std/http@1.0.23",
+    "@std/ulid": "jsr:@std/ulid@1.0.23"
   }
 }
