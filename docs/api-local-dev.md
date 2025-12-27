@@ -2,11 +2,11 @@ Back to [root README](../README.md)
 
 # API — local development
 
-This guide explains how to run the Deno API locally, configure env vars, and test endpoints.
+This guide explains how to run the Bun API locally, configure env vars, and test endpoints.
 
 ## Prerequisites
 
-- Deno (latest stable)
+- Bun (latest stable)
 - pnpm
 - AWS credentials (profile or env) if you want to hit real AWS services during dev
 
@@ -24,7 +24,7 @@ This guide explains how to run the Deno API locally, configure env vars, and tes
 pnpm nx serve api
 ```
 
-This runs `deno task dev` under `apps/api` and serves on `http://localhost:8080`.
+This runs `bun --watch apps/api/src/main.ts` under `apps/api` (via Nx) and serves on `http://localhost:8080`.
 
 ## Test
 

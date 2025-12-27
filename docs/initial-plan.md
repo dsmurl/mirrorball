@@ -11,7 +11,7 @@
 - Infrastructure provisioned with Pulumi on AWS.
 - Static website built with Vite and served via the same S3 bucket and a CloudFront distribution (site + images).
 - Define users, roles (dev, admin), and required permissions in-repo (AWS permissions file + Pulumi wiring).
-- Prefer no serverless functions. If an API is needed, implement it as a long-running Deno service deployed as a container (no Lambdas).
+- Prefer no serverless functions. If an API is needed, implement it as a long-running Bun service deployed as a container (no Lambdas).
 
 Type sharing and runtime validation
 
@@ -25,20 +25,20 @@ Config-driven email domain restriction
 Notes
 
 - Monorepo: Nx will manage the workspace, tasks, and caching for frontend, API, and infra.
-- Pulumi is the IaC tool. The frontend will still use a JS/TS package manager (pnpm/npm/yarn); Deno will manage backend code where used. This plan uses Pulumi to orchestrate infra, not as an app package manager.
+- Pulumi is the IaC tool. The frontend and backend will both use a JS/TS package manager (pnpm); Bun will manage backend code where used. This plan uses Pulumi to orchestrate infra, not as an app package manager.
 
-#### 2) High-Level Architecture (Nx monorepo, Deno API service, no Lambdas)
+#### 2) High-Level Architecture (Nx monorepo, Bun API service, no Lambdas)
 
 - Region: Default deployment region is `us-west-2`.
 - Auth: Amazon Cognito Hosted UI + Cognito User Pool. Two groups: dev, admin.
-- API: Single Deno web service (containerized) exposes minimal endpoints. No API Gateway, no Lambda. Deployed on AWS App Runner in `us-west-2` (fallback to ECS Fargate only if App Runner is unavailable).
-- Uploads: Frontend calls the Deno API to obtain pre-signed S3 PUT URLs. API validates JWT (Cognito) and role (group claim).
+- API: Single Bun web service (containerized) exposes minimal endpoints. No API Gateway, no Lambda. Deployed on AWS App Runner in `us-west-2` (fallback to ECS Fargate only if App Runner is unavailable).
+- Uploads: Frontend calls the Bun API to obtain pre-signed S3 PUT URLs. API validates JWT (Cognito) and role (group claim).
 - Metadata: DynamoDB single-table for image metadata (owner, uploadTime, devName, s3Key, publicUrl). API performs writes/reads.
 - Public URL: CloudFront distribution with two origins: S3 (site + images prefixes) and API origin (App Runner/ECS). CloudFront routes `/api/*` to the API origin and everything else to S3. S3 remains private using CloudFront OAC.
 
 Email domain control options (no Lambdas required)
 
-- Primary (simple, immediate): API-level enforcement. The Deno API reads an `ALLOWED_EMAIL_DOMAINS` config (comma-separated list) and rejects upload/delete endpoints when the Cognito token `email` claim is not in an allowed domain. Listing/search remains available to authenticated users regardless of domain. If `ALLOWED_EMAIL_DOMAINS` is not set or is empty, no domain restriction is applied (uploads/deletes allowed subject to role checks only).
+- Primary (simple, immediate): API-level enforcement. The Bun API reads an `ALLOWED_EMAIL_DOMAINS` config (comma-separated list) and rejects upload/delete endpoints when the Cognito token `email` claim is not in an allowed domain. Listing/search remains available to authenticated users regardless of domain. If `ALLOWED_EMAIL_DOMAINS` is not set or is empty, no domain restriction is applied (uploads/deletes allowed subject to role checks only).
 - Optional (stronger at identity layer): Use Cognito federated IdP with a Google Workspace OIDC provider restricted to your company domain. Disable native signup/self-registration to ensure only employees can sign in via Workspace. This requires adding a Cognito OIDC provider but no Lambda triggers.
 
 #### 3) Roles & Authorization Model
@@ -46,7 +46,7 @@ Email domain control options (no Lambdas required)
 - Roles: dev, admin.
 - Both can list and search images.
 - dev can upload; admin can upload and delete.
-- Cognito groups are carried as JWT claims. The Deno API validates tokens (User Pool JWKS) and authorizes by `cognito:groups` claim.
+- Cognito groups are carried as JWT claims. The Bun API validates tokens (User Pool JWKS) and authorizes by `cognito:groups` claim.
 - Keep S3 bucket private; access via CloudFront (public read) and pre-signed URLs for uploads; deletes only by admin via API call.
 
 Email domain allowlist enforcement
@@ -91,7 +91,7 @@ Base path: `/api`
 - `DELETE /api/images/:imageId` → delete image object and metadata
   - Auth: admin only
 
-Implementation: Deno HTTP service (e.g., using `std/http`, Hono, or Oak) running as a container. Verifies Cognito JWT (via JWKS). Uses AWS SDK v3 for JavaScript (via npm specifier under Deno) for S3 pre-sign and DynamoDB access. Exposed through CloudFront path routing to App Runner/ECS service.
+Implementation: Bun HTTP service (e.g., using `Bun.serve` or Hono) running as a container. Verifies Cognito JWT (via JWKS). Uses AWS SDK v3 for JavaScript for S3 pre-sign and DynamoDB access. Exposed through CloudFront path routing to App Runner/ECS service.
 
 Schema-first contracts with Zod
 
@@ -150,7 +150,7 @@ Resources:
   - (Optional) Identity Pool not required; tokens validated by API directly
   - Optional: Google Workspace OIDC provider restricted to your company domain; disable native signup if using federated login
 - DynamoDB: `Images` table (on-demand capacity)
-- Containerized Deno API Service
+- Containerized Bun API Service
   - Container registry: ECR repository
   - Service platform: App Runner in `us-west-2` (simpler) or ECS Fargate (only if necessary).
   - Networking: Public HTTPS endpoint; CloudFront routes `/api/*` to this origin
@@ -170,7 +170,7 @@ Data access approach (DynamoDB — no ORM)
 
 - Use AWS SDK v3 DynamoDB Document Client (v3) with small helper functions (no ORM). Keep marshalling simple and enforce shapes with Zod at the edges.
 - Provide a tiny repository layer in the API: `imagesRepo.ts` with functions `putImage`, `getImage`, `deleteImage`, `queryImagesByOwner`, and optional `scanByPrefix` patterns.
-- Rationale: smallest dependency surface, explicit control over keys/indexes, excellent fit for Deno via `npm:` imports.
+- Rationale: smallest dependency surface, explicit control over keys/indexes, excellent fit for Bun.
 - Future note: Reassess only if data access complexity grows substantially; do not introduce an ORM in the MVP.
 
 #### 8) AWS Permissions File (in-repo)
@@ -187,14 +187,14 @@ Create `apps/infra/permissions/policies.json` containing:
 
 - Nx workspace at repo root. Use `pnpm`.
 - Frontend: `nx serve web` with environment variables `VITE_API_BASE_URL`, `VITE_USER_POOL_ID`, `VITE_USER_POOL_CLIENT_ID`, `VITE_CLOUDFRONT_DOMAIN`.
-- Deno API service: `nx serve api` (wrapper for `deno task dev`), runs on localhost with JWT validation against Cognito JWKS. Configure local `.env` for AWS creds or use a named AWS profile.
+- Bun API service: `nx serve api` (wrapper for `bun --watch apps/api/src/main.ts`), runs on localhost with JWT validation against Cognito JWKS. Configure local `.env` for AWS creds or use a named AWS profile.
 - Domain restriction config for dev: set `ALLOWED_EMAIL_DOMAINS=example.com` in the API environment. Optionally set `VITE_ALLOWED_EMAIL_DOMAINS=example.com` for the frontend.
 - Pulumi: `nx run infra:up` (wrapper around `pulumi up`) against `dev` stack. Pulumi program resides in `apps/infra/`.
 
 Shared library development
 
-- Shared schemas/types live in `libs/shared-schemas` (or `libs/shared`), exported as ESM. Both `apps/api` (Deno) and `apps/frontend` (Vite) import from this lib.
-- Ensure `tsconfig` path mappings or Nx project references are set so imports like `@mirrorball/shared-schemas` resolve in both apps. For Deno, use relative imports or `deno.json` `imports` mapping pointing to the compiled TS paths.
+- Shared schemas/types live in `libs/shared-schemas` (or `libs/shared`), exported as ESM. Both `apps/api` (Bun) and `apps/frontend` (Vite) import from this lib.
+- Ensure `tsconfig` path mappings or Nx project references are set so imports like `@mirrorball/shared-schemas` resolve in both apps.
 
 #### 10) CI/CD (minimal)
 
@@ -237,7 +237,7 @@ M1 — Repo bootstrap
 - Folder structure:
   - Nx workspace with:
     - `apps/web` (Vite app)
-    - `apps/api` (Deno API service)
+    - `apps/api` (Bun API service)
     - `apps/infra/` (Pulumi program, permissions)
     - `libs/shared-schemas` (Zod schemas and inferred types for contracts)
     - `docs/` (this plan)
@@ -254,8 +254,8 @@ M2 — Infra MVP
 
 M3 — API Service MVP
 
-- Deno service endpoints: `presign-upload`, `confirm-upload`, `list-images`, `delete-image`
-- Containerization: Multi-stage Dockerfile for Deno API (builder + runtime), ECR repo, App Runner service created via Pulumi
+- Bun service endpoints: `presign-upload`, `confirm-upload`, `list-images`, `delete-image`
+- Containerization: Multi-stage Dockerfile for Bun API (builder + runtime), ECR repo, App Runner service created via Pulumi
 - IAM roles/policies attached from `apps/infra/permissions/policies.json`
 - Config: API reads `ALLOWED_EMAIL_DOMAINS` env and enforces domain allowlist for upload/delete
 - Contracts: API validates inputs/outputs using shared Zod schemas; on 400/403 returns a JSON error shape defined in shared lib
@@ -297,7 +297,7 @@ M5 — Deploy & Verify
 1. Initialize repo structure
 
 - Scaffold Nx workspace at repo root (pnpm)
-- Create apps: `web` (Vite + React + TS), `api` (Deno HTTP service)
+- Create apps: `web` (Vite + React + TS), `api` (Bun HTTP service)
 - Create `apps/infra/` (Pulumi TS program) and `apps/infra/permissions/`
 - Add `.gitignore`, root `README.md` with a Docs index linking to all files in `docs/`
 - Create `libs/shared-schemas` library with Zod (`zod` as dependency) exporting schemas and inferred types
@@ -330,12 +330,12 @@ M5 — Deploy & Verify
 - Create DynamoDB table `Images` (on-demand); optionally GSI1 for owner+time
 - Export `tableName`
 
-7. API Service (Deno container)
+7. API Service (Bun container)
 
 - Implement endpoints in `apps/api`
 - Add a tiny repo layer `imagesRepo.ts` using AWS SDK v3 Document Client helpers (put/get/delete/query)
 - Validate all request/response bodies using the shared Zod schemas
-- Add multi-stage Dockerfile for Deno API (Stage 1: build; Stage 2: slim runtime). Create ECR repo; build and push image
+- Add multi-stage Dockerfile for Bun API (Stage 1: build; Stage 2: slim runtime). Create ECR repo; build and push image
 - Create App Runner service (or ECS Fargate) with execution role attached
 - Wire Pulumi stack config `allowedEmailDomains` to App Runner/ECS service environment variable `ALLOWED_EMAIL_DOMAINS` (join list by comma); if empty or unset, the API will not apply any email-domain restriction.
 - Export `apiBaseUrl`
@@ -376,7 +376,7 @@ M5 — Deploy & Verify
 - Domain control approach: DECISION — Option A (API-only allowlist via `allowedEmailDomains`). Behavior: if unset/empty, no restriction.
 - DynamoDB data access:
   - Start with minimal helpers + Zod at edges (recommended for MVP), or adopt a library now?
-  - If library: prefer DynamoDB Toolbox for ergonomics; confirm Deno compatibility in your environment.
+  - If library: prefer DynamoDB Toolbox for ergonomics; confirm Bun compatibility in your environment.
 
 #### 17) Documentation deliverables (living docs per app and infra)
 
@@ -397,7 +397,7 @@ M5 — Deploy & Verify
     - Job steps for: build frontend, build/push API image to ECR, `pulumi preview` on PR, two-stage deploy on main (Stage 1 infra, Stage 2 wiring)
     - Destroy workflow: manual trigger (`workflow_dispatch`), assumes `mirrorball-destroyer`, runs `pulumi destroy` safely.
   - `docs/api-local-dev.md`
-    - How to run the Deno API locally, env vars, token testing, example curl commands
+    - How to run the Bun API locally, env vars, token testing, example curl commands
   - `docs/api-deploy.md`
     - How the API is built and deployed via CI (image tags, ECR, App Runner/ECS update)
   - `docs/frontend-local-dev.md`

@@ -1,29 +1,29 @@
-# Multi-stage Dockerfile for Deno API (builder + slim runtime)
-
-FROM denoland/deno:1.46.3 as builder
+# Multi-stage Dockerfile for Bun API (builder + runtime)
+FROM oven/bun:1.1 as builder
 WORKDIR /workspace
 
-# Copy project files needed for dependency caching
-COPY apps/api/deno.json ./apps/api/deno.json
+# Copy root lockfile and package.json if needed for workspace resolution
+# Since we are in a monorepo, we might need some shared files.
+COPY package.json pnpm-lock.yaml ./
+COPY apps/api/package.json ./apps/api/
 COPY libs/shared-schemas ./libs/shared-schemas
+
+# Install dependencies for the whole workspace (or just api)
+# Bun can install pnpm lockfiles
+RUN bun install
+
 COPY apps/api/src ./apps/api/src
 
-# Cache dependencies (no lockfile yet; safe to skip if none)
-RUN deno cache ./apps/api/src/main.ts || true
-
-FROM denoland/deno:distroless-1.46.3
+FROM oven/bun:1.1-slim
 WORKDIR /app
 
-# Copy the cached deps and source
-COPY --from=builder /deno-dir /deno-dir
-COPY apps/api/deno.json ./deno.json
-COPY libs/shared-schemas ./libs/shared-schemas
-COPY apps/api/src ./apps/api/src
+# Copy from builder
+COPY --from=builder /workspace/node_modules ./node_modules
+COPY --from=builder /workspace/apps/api/node_modules ./apps/api/node_modules
+COPY --from=builder /workspace/apps/api/src ./apps/api/src
+COPY --from=builder /workspace/libs/shared-schemas ./libs/shared-schemas
 
-ENV DENO_DIR=/deno-dir \
-    PORT=8080
-
+ENV PORT=8080
 EXPOSE 8080
 
-# The distroless image sets ENTRYPOINT ["deno"], so we only provide CMD
-CMD ["run", "--allow-env", "--allow-net", "--allow-read", "apps/api/src/main.ts"]
+CMD ["bun", "run", "apps/api/src/main.ts"]

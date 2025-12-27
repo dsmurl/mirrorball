@@ -6,19 +6,19 @@
     "dev": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "cd apps/api && deno task dev"
+        "command": "bun --watch apps/api/src/main.ts"
       }
     },
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "echo 'Deno app - no build step'"
+        "command": "echo 'Bun app - no build step needed for now'"
       }
     },
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "cd apps/api && deno task typecheck"
+        "command": "tsc -p apps/api/tsconfig.json --noEmit"
       }
     }
   },

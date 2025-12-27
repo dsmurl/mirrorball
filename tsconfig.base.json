@@ -9,7 +9,7 @@
     "paths": {
       "@mirrorball/shared-schemas/*": ["libs/shared-schemas/src/*"]
     },
-    "types": [],
+    "types": ["bun"],
     "allowImportingTsExtensions": true,
     "noEmit": true
   },

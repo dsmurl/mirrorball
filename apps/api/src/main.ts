@@ -1,5 +1,4 @@
-// Deno HTTP service implementing minimal API per plan
-import { serve } from "@std/http";
+// Bun HTTP service implementing minimal API per plan
 import { z } from "zod";
 import {
   PresignUploadInput,
@@ -17,15 +16,15 @@ import {
   ScanCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { ulid } from "@std/ulid";
+import { ulid } from "ulid";
 import * as jose from "jose";
 
-const PORT = Number(Deno.env.get("PORT") ?? 8080);
-const REGION = Deno.env.get("AWS_REGION") ?? "us-west-2";
-const BUCKET_NAME = Deno.env.get("BUCKET_NAME") ?? "";
-const TABLE_NAME = Deno.env.get("TABLE_NAME") ?? "";
-const USER_POOL_ID = Deno.env.get("USER_POOL_ID") ?? "";
-const ALLOWED_EMAIL_DOMAINS = (Deno.env.get("ALLOWED_EMAIL_DOMAINS") ?? "")
+const PORT = Number(process.env.PORT ?? 8080);
+const REGION = process.env.AWS_REGION ?? "us-west-2";
+const BUCKET_NAME = process.env.BUCKET_NAME ?? "";
+const TABLE_NAME = process.env.TABLE_NAME ?? "";
+const USER_POOL_ID = process.env.USER_POOL_ID ?? "";
+const ALLOWED_EMAIL_DOMAINS = (process.env.ALLOWED_EMAIL_DOMAINS ?? "")
   .split(",")
   .map((s) => s.trim().toLowerCase())
   .filter(Boolean);
@@ -90,8 +89,9 @@ function emailAllowed(email?: string): boolean {
 
 console.log(`API listening on http://localhost:${PORT}`);
 
-serve(
-  async (req) => {
+Bun.serve({
+  port: PORT,
+  async fetch(req) {
     const url = new URL(req.url);
     const path = url.pathname;
 
@@ -125,8 +125,8 @@ serve(
       const uploadUrl = await getSignedUrl(s3, put, { expiresIn: 900 });
 
       // Compute public URL via CloudFront if available; otherwise S3 virtual-hosted style
-      const cf = Deno.env.get("CLOUDFRONT_DOMAIN")
-        ? `https://${Deno.env.get("CLOUDFRONT_DOMAIN")}/${key}`
+      const cf = process.env.CLOUDFRONT_DOMAIN
+        ? `https://${process.env.CLOUDFRONT_DOMAIN}/${key}`
         : `https://${BUCKET_NAME}.s3.${REGION}.amazonaws.com/${key}`;
 
       const now = new Date().toISOString();
@@ -239,5 +239,4 @@ serve(
 
     return notFound();
   },
-  { port: PORT },
-);
+});

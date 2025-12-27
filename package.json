@@ -2,6 +2,7 @@
   "name": "mirrorball",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "packageManager": "pnpm@9.0.0",
   "scripts": {
     "typecheck": "echo 'Typecheck is managed by Nx in CI'",
@@ -21,6 +22,7 @@
     "vite": "^5.4.8"
   },
   "dependencies": {
+    "@types/bun": "latest",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "zod": "^3.23.8"
