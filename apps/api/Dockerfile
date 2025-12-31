@@ -1,5 +1,5 @@
 # Multi-stage Dockerfile for Bun API (builder + runtime)
-FROM oven/bun:1.1 as builder
+FROM oven/bun:1.1 AS builder
 WORKDIR /workspace
 
 # Copy root lockfile and package.json if needed for workspace resolution
@@ -19,7 +19,6 @@ WORKDIR /app
 
 # Copy from builder
 COPY --from=builder /workspace/node_modules ./node_modules
-COPY --from=builder /workspace/apps/api/node_modules ./apps/api/node_modules
 COPY --from=builder /workspace/apps/api/src ./apps/api/src
 COPY --from=builder /workspace/libs/shared-schemas ./libs/shared-schemas
 

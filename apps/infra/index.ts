@@ -147,6 +147,78 @@ const appRunnerLogsPolicy = new aws.iam.RolePolicy("mirror-ballAppRunnerLogsPoli
   }).json,
 });
 
+// 6) App Runner instance role & policies
+const appRunnerInstanceRole = new aws.iam.Role("mirror-ballAppRunnerInstanceRole", {
+  name: pulumi.interpolate`mirror-ball-apprunner-instance-${pulumi.getStack()}`,
+  assumeRolePolicy: aws.iam.getPolicyDocumentOutput({
+    statements: [
+      {
+        effect: "Allow",
+        principals: [
+          {
+            type: "Service",
+            identifiers: ["tasks.apprunner.amazonaws.com", "apprunner.amazonaws.com"],
+          },
+        ],
+        actions: ["sts:AssumeRole"],
+      },
+    ],
+  }).json,
+  tags: commonTags,
+});
+
+const appRunnerInstanceAccess = new aws.iam.RolePolicy("mirror-ballAppRunnerInstanceAccess", {
+  role: appRunnerInstanceRole.id,
+  policy: pulumi.all([bucket.arn, imagesTable.arn]).apply(([bArn, tArn]) =>
+    JSON.stringify({
+      Version: "2012-10-17",
+      Statement: [
+        {
+          Sid: "S3ImagesRW",
+          Effect: "Allow",
+          Action: ["s3:PutObject", "s3:GetObject", "s3:DeleteObject", "s3:ListBucket"],
+          Resource: [bArn, `${bArn}/*`],
+        },
+        {
+          Sid: "DynamoDBRW",
+          Effect: "Allow",
+          Action: [
+            "dynamodb:PutItem",
+            "dynamodb:GetItem",
+            "dynamodb:DeleteItem",
+            "dynamodb:Query",
+            "dynamodb:UpdateItem",
+            "dynamodb:Scan",
+          ],
+          Resource: [tArn, `${tArn}/index/*`],
+        },
+        {
+          Sid: "CloudWatchLogs",
+          Effect: "Allow",
+          Action: [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents",
+            "logs:DescribeLogStreams",
+          ],
+          Resource: "*",
+        },
+      ],
+    }),
+  ),
+});
+
+// CloudFront OAC + Distribution (serves site/ and images/ + routes /api/* to App Runner)
+// Defined as a function to handle the circular dependency with App Runner
+const oac = new aws.cloudfront.OriginAccessControl("mirror-ballOac", {
+  name: pulumi.interpolate`mirror-ball-oac-${pulumi.getStack()}`,
+  description: "OAC for S3 origin (mirror-ball)",
+  originAccessControlOriginType: "s3",
+  signingBehavior: "always",
+  signingProtocol: "sigv4",
+});
+
+// App Runner service
 const imageIdentifier = pulumi.interpolate`${ecrRepo.repositoryUrl}:${imageTag}`;
 
 const appRunnerService = new aws.apprunner.Service(
@@ -163,12 +235,12 @@ const appRunnerService = new aws.apprunner.Service(
           runtimeEnvironmentVariables: {
             ALLOWED_EMAIL_DOMAINS: pulumi
               .output(allowedEmailDomains)
-              .apply((arr) => (arr && arr.length ? arr.join(",") : "")),
+              .apply((arr: string[] | undefined) => (arr && arr.length ? arr.join(",") : "")),
             AWS_REGION: region,
             BUCKET_NAME: bucket.bucket,
             TABLE_NAME: imagesTable.name,
             USER_POOL_ID: userPool.id,
-            CLOUDFRONT_DOMAIN: cfDistribution.domainName,
+            // CLOUDFRONT_DOMAIN: cfDistribution.domainName, // Removed to break circular dependency
           },
         },
       },
@@ -194,19 +266,17 @@ const appRunnerService = new aws.apprunner.Service(
 
 export const apiBaseUrl = appRunnerService.serviceUrl;
 
-// 5) CloudFront OAC + Distribution (serves site/ and images/ + routes /api/* to App Runner)
-
-// Origin Access Control for S3
-const oac = new aws.cloudfront.OriginAccessControl("mirror-ballOac", {
-  name: pulumi.interpolate`mirror-ball-oac-${pulumi.getStack()}`,
-  description: "OAC for S3 origin (mirror-ball)",
-  originAccessControlOriginType: "s3",
-  signingBehavior: "always",
-  signingProtocol: "sigv4",
-});
-
 // Build CloudFront distribution with two origins: S3 and App Runner
-const apiDomain = appRunnerService.serviceUrl.apply((u) => new URL(u).host);
+// Using a placeholder domain initially if the service URL isn't ready,
+// but App Runner serviceUrl is available as soon as the resource object is created in Pulumi.
+const apiDomain = appRunnerService.serviceUrl.apply((u: string) => {
+  if (!u) return "placeholder.apprunner.aws"; // CloudFront requires a non-empty domain
+  try {
+    return new URL(u).host;
+  } catch {
+    return u; // Fallback if it's already just a hostname
+  }
+});
 
 const cfDistribution = new aws.cloudfront.Distribution("mirror-ballCdn", {
   enabled: true,
@@ -294,64 +364,3 @@ const bucketPolicy = new aws.s3.BucketPolicy("mirror-ballBucketPolicy", {
 // Update outputs now that CloudFront is created
 export const cloudFrontDomainName = cfDistribution.domainName;
 export const cloudFrontDistributionId = cfDistribution.id;
-
-// 6) App Runner instance role & policies
-const appRunnerInstanceRole = new aws.iam.Role("mirror-ballAppRunnerInstanceRole", {
-  name: pulumi.interpolate`mirror-ball-apprunner-instance-${pulumi.getStack()}`,
-  assumeRolePolicy: aws.iam.getPolicyDocumentOutput({
-    statements: [
-      {
-        effect: "Allow",
-        principals: [
-          {
-            type: "Service",
-            identifiers: ["tasks.apprunner.amazonaws.com", "apprunner.amazonaws.com"],
-          },
-        ],
-        actions: ["sts:AssumeRole"],
-      },
-    ],
-  }).json,
-  tags: commonTags,
-});
-
-const appRunnerInstanceAccess = new aws.iam.RolePolicy("mirror-ballAppRunnerInstanceAccess", {
-  role: appRunnerInstanceRole.id,
-  policy: pulumi.all([bucket.arn, imagesTable.arn]).apply(([bArn, tArn]) =>
-    JSON.stringify({
-      Version: "2012-10-17",
-      Statement: [
-        {
-          Sid: "S3ImagesRW",
-          Effect: "Allow",
-          Action: ["s3:PutObject", "s3:GetObject", "s3:DeleteObject", "s3:ListBucket"],
-          Resource: [bArn, `${bArn}/*`],
-        },
-        {
-          Sid: "DynamoDBRW",
-          Effect: "Allow",
-          Action: [
-            "dynamodb:PutItem",
-            "dynamodb:GetItem",
-            "dynamodb:DeleteItem",
-            "dynamodb:Query",
-            "dynamodb:UpdateItem",
-            "dynamodb:Scan",
-          ],
-          Resource: [tArn, `${tArn}/index/*`],
-        },
-        {
-          Sid: "CloudWatchLogs",
-          Effect: "Allow",
-          Action: [
-            "logs:CreateLogGroup",
-            "logs:CreateLogStream",
-            "logs:PutLogEvents",
-            "logs:DescribeLogStreams",
-          ],
-          Resource: "*",
-        },
-      ],
-    }),
-  ),
-});

@@ -156,11 +156,10 @@ If you want to run it locally:
 App Runner cannot start without an image in ECR. Since your ECR repository was just created by Pulumi, it is currently empty.
 
 1.  **Get your ECR repository URL** from the Pulumi outputs:
-    ```bash
-    pulumi stack output ecrRepositoryUri
-    ```
+    Get the ECR repository URI from the Pulumi site when you login and view it in the stack
 2.  **Authenticate Docker to AWS** (replace `<REGION>` and `<ACCOUNT_ID>`):
     ```bash
+    assume   # your aws role
     aws ecr get-login-password --region <REGION> | docker login --username AWS --password-stdin <ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com
     ```
 3.  **Build and push a "bootstrap" image**:
