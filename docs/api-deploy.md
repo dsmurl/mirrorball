@@ -13,7 +13,7 @@ The API is containerized and deployed to AWS App Runner in `us-west-2`. Deployme
 ## Required AWS/Pulumi config
 
 - Pulumi stack config (in `apps/infra/`):
-  - `region`: `us-west-2` (default)
+  - `aws:region`: `us-west-2` (default)
   - `allowedEmailDomains`: string list (optional). If absent/empty, no domain restriction is enforced by the API.
 
 ## GitHub secrets/vars

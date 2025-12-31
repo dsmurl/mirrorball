@@ -1,6 +1,6 @@
 # Mirror-ball
 
-Simple image upload and listing site with role-based access, built as an Nx monorepo. Frontend (Vite) and backend (Deno) share Zod schemas. Infra is provisioned with Pulumi on AWS (S3, CloudFront, Cognito, DynamoDB, App Runner).
+Simple image upload and listing site with role-based access, built as an Nx monorepo. Frontend (Vite) and backend (Bun) share Zod schemas. Infra is provisioned with Pulumi on AWS (S3, CloudFront, Cognito, DynamoDB, App Runner).
 
 ## Docs
 
@@ -19,7 +19,7 @@ Simple image upload and listing site with role-based access, built as an Nx mono
 - Nx monorepo using pnpm
 - Apps:
 - `apps/web` — Vite + React
-- `apps/api` — Deno HTTP service
+- `apps/api` — Bun HTTP service
 - Libs:
 - `libs/shared-schemas` — Zod schemas and inferred types
 - Infra:
@@ -29,7 +29,7 @@ See the docs above for details.
 
 ## Run locally (quick start)
 
-- Prerequisites: pnpm, Node LTS, Deno (for API)
+- Prerequisites: pnpm, Node LTS, Bun (for API)
 
 1. Install deps
 
@@ -37,7 +37,7 @@ See the docs above for details.
 pnpm install
 ```
 
-2. Start the API (Deno)
+2. Start the API (Bun)
 
 ```
 pnpm nx serve api

@@ -8,5 +8,4 @@ apps/**/dist
 libs/**/dist
 apps/infra/dist
 apps/web/dist
-apps/api/deno.lock
 *.log
