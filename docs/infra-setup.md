@@ -242,3 +242,27 @@ If `pulumi up` fails with an error stating that the App Runner service is in an 
 ### Missing ECR Image
 
 If App Runner fails to start with a "Health check failed" or "Image pull error," ensure you have pushed the `bootstrap` image to ECR as described in [Section 8](#8-bootstrapping-ecr-for-your-real-api).
+
+### Switching Permissions for Up vs Destroy
+
+If you are using a single IAM role or user for local development, you may need to swap its attached policy depending on whether you are building or tearing down the stack.
+
+1.  **To Destroy the stack**:
+    - Go to the **AWS Console** -> **IAM** -> **Roles** (or Users).
+    - Select your deployment role (e.g., `mirror-ball-creator`).
+    - Detach the `mirror-ball-creator-policy`.
+    - Attach the `mirror-ball-destroyer-policy` (found in `apps/infra/permissions/mirror-ball-destroyer-policy.json`).
+    - Run the destroy command:
+      ```bash
+      cd apps/infra
+      pulumi destroy
+      ```
+2.  **To Deploy/Up the stack again**:
+    - Go back to the **AWS Console**.
+    - Detach the `mirror-ball-destroyer-policy`.
+    - Re-attach the `mirror-ball-creator-policy` (found in `apps/infra/permissions/mirror-ball-creator-policy.json`).
+    - Run the up command:
+      ```bash
+      cd apps/infra
+      pulumi up
+      ```
