@@ -1,6 +1,8 @@
 import * as jose from "jose";
+import { AdminAddUserToGroupCommand } from "@aws-sdk/client-cognito-identity-provider";
 import { REGION, USER_POOL_ID, ALLOWED_EMAIL_DOMAINS } from "../lib/config.ts";
 import { error } from "../lib/responses.ts";
+import { cognito } from "../lib/aws.ts";
 
 // JWKS for Cognito
 const jwksUri = USER_POOL_ID
@@ -21,9 +23,31 @@ export async function authenticate(
     const { payload } = await jose.jwtVerify(token, jwks, {
       issuer: `https://cognito-idp.${REGION}.amazonaws.com/${USER_POOL_ID}`,
     });
-    const groups = Array.isArray(payload["cognito:groups"])
+    let groups = Array.isArray(payload["cognito:groups"])
       ? (payload["cognito:groups"] as string[])
       : [];
+
+    // Auto-assign "dev" group if the user has no groups
+    if (groups.length === 0 && USER_POOL_ID) {
+      const username = (payload["cognito:username"] as string) || (payload.sub as string);
+      console.log(`Auto-assigning 'dev' group to user: ${username}`);
+      try {
+        await cognito.send(
+          new AdminAddUserToGroupCommand({
+            UserPoolId: USER_POOL_ID,
+            Username: username,
+            GroupName: "dev",
+          }),
+        );
+        // Add "dev" to the local groups list so the current request can proceed
+        groups = ["dev"];
+      } catch (err) {
+        console.error("Failed to auto-assign group:", err);
+        // We don't block the request if this fails,
+        // but the user won't have permissions for this specific call.
+      }
+    }
+
     return { claims: payload as Claims, groups };
   } catch (e) {
     return error(401, "Invalid token", String(e));

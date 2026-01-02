@@ -160,12 +160,14 @@ To avoid the "Chicken and Egg" problem where App Runner fails because your ECR i
     pulumi config set usePublicImage true
     ```
 2.  **Deploy**:
+
     ```bash
     pulumi up
     ```
+
     This will use a public Nginx image to build your entire infrastructure (S3, CloudFront, Cognito) without needing your local code or Docker.
 
-    *Note on Health Checks:* Pulumi is configured to use a static **HTTP health check** on the root path (`/`). Since the standard Nginx image returns a 200 OK on `/` and our API is also configured to handle `/`, the health check will pass for both the placeholder and your real application without needing to change the infrastructure configuration.
+    _Note on Health Checks:_ Pulumi is configured to use a static **HTTP health check** on the root path (`/`). Since the standard Nginx image returns a 200 OK on `/` and our API is also configured to handle `/`, the health check will pass for both the placeholder and your real application without needing to change the infrastructure configuration.
 
 3.  **Deploy your real API**:
     Once the infrastructure is up, you must follow **Section 8** to build and push your real API image with the `:bootstrap` tag, then disable Skeleton Mode.
@@ -231,7 +233,7 @@ If `pulumi up` fails with an error stating that the App Runner service is in an 
     cd apps/infra
     pulumi refresh
     ```
-    *(Select **yes** to remove the missing resource from your state).*
+    _(Select **yes** to remove the missing resource from your state)._
 3.  **Redeploy**:
     ```bash
     pulumi up

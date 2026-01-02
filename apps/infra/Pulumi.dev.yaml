@@ -2,3 +2,4 @@ config:
   aws:region: us-west-2
   mirror-ball-infra:allowedEmailDomains:
     - gmail.com
+  mirror-ball-infra:usePublicImage: "true"
