@@ -27,6 +27,8 @@ export async function listImages(req: Request) {
       owner: i.owner,
       title: i.title || "Untitled",
       originalFileName: i.originalFileName || "unknown",
+      dimensions: i.dimensions,
+      fileSize: i.fileSize,
       devName: i.devName,
       uploadTime: i.uploadTime,
       s3Key: i.s3Key,

@@ -24,7 +24,7 @@ export async function presignUpload(req: Request) {
   const body = await req.json().catch(() => ({}));
   const parsed = PresignUploadInput.safeParse(body);
   if (!parsed.success) return error(400, "Invalid body", parsed.error.issues);
-  const { contentType, fileName, title } = parsed.data;
+  const { contentType, fileName, title, dimensions, fileSize } = parsed.data;
 
   if (!BUCKET_NAME) return error(500, "BUCKET_NAME not configured");
   if (!TABLE_NAME) return error(500, "TABLE_NAME not configured");
@@ -71,6 +71,8 @@ export async function presignUpload(req: Request) {
         owner,
         title: sanitizedTitle,
         originalFileName: fileName,
+        dimensions,
+        fileSize,
         devName: owner,
         uploadTime: now,
         s3Key: key,

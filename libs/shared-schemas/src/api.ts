@@ -4,6 +4,8 @@ export const PresignUploadInput = z.object({
   contentType: z.string().min(1),
   fileName: z.string().min(1),
   title: z.string().min(1),
+  dimensions: z.string().optional(),
+  fileSize: z.number().optional(),
 });
 export type PresignUploadInput = z.infer<typeof PresignUploadInput>;
 

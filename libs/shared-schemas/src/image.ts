@@ -5,6 +5,8 @@ export const ImageSchema = z.object({
   owner: z.string(),
   title: z.string(),
   originalFileName: z.string(),
+  dimensions: z.string().optional(),
+  fileSize: z.number().optional(),
   devName: z.string(),
   uploadTime: z.string(),
   s3Key: z.string(),

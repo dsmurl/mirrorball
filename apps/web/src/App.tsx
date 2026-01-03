@@ -9,6 +9,7 @@ export default function App() {
   const [user, setUser] = useState<any>(null);
   const [view, setView] = useState<"gallery" | "upload">("gallery");
   const [images, setImages] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [isLoadingImages, setIsLoadingImages] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -68,6 +69,17 @@ export default function App() {
     }
   }
 
+  function formatFileSize(bytes?: number) {
+    if (!bytes) return "";
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  const filteredImages = images.filter((img) =>
+    img.title.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
   function handleLogin() {
     const loginUrl = `${COGNITO_DOMAIN}/login?client_id=${CLIENT_ID}&response_type=token&scope=email+openid+profile&redirect_uri=${encodeURIComponent(
       REDIRECT_URI,
@@ -92,6 +104,18 @@ export default function App() {
     }
 
     setIsUploading(true);
+    setStatus("Reading file dimensions...");
+
+    let dimensions = "";
+    if (file.type.startsWith("image/")) {
+      dimensions = await new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(`${img.width}x${img.height}`);
+        img.onerror = () => resolve("");
+        img.src = URL.createObjectURL(file);
+      });
+    }
+
     setStatus("Getting pre-signed URL...");
 
     try {
@@ -106,6 +130,8 @@ export default function App() {
           contentType: file.type,
           fileName: file.name,
           title: title,
+          dimensions: dimensions || undefined,
+          fileSize: file.size,
         }),
       });
 
@@ -195,7 +221,133 @@ export default function App() {
           paddingBottom: 12,
         }}
       >
-        <h1 style={{ margin: 0 }}>mirror-ball</h1>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <svg
+            width="44"
+            height="44"
+            viewBox="0 0 100 100"
+            style={{ filter: "drop-shadow(0 2px 6px rgba(0,123,255,0.4))" }}
+          >
+            <defs>
+              <radialGradient id="ballGrad" cx="35%" cy="35%" r="60%">
+                <stop offset="0%" style={{ stopColor: "#ffffff", stopOpacity: 1 }} />
+                <stop offset="40%" style={{ stopColor: "#007bff", stopOpacity: 1 }} />
+                <stop offset="100%" style={{ stopColor: "#002a5a", stopOpacity: 1 }} />
+              </radialGradient>
+            </defs>
+            <circle cx="50" cy="50" r="45" fill="url(#ballGrad)" stroke="#333" strokeWidth="2" />
+
+            {/* Radial Mirror Tile Grid - Vertical Ellipses */}
+            <ellipse
+              cx="50"
+              cy="50"
+              rx="15"
+              ry="45"
+              fill="none"
+              stroke="rgba(255,255,255,0.4)"
+              strokeWidth="1"
+            />
+            <ellipse
+              cx="50"
+              cy="50"
+              rx="30"
+              ry="45"
+              fill="none"
+              stroke="rgba(255,255,255,0.3)"
+              strokeWidth="1"
+            />
+            <line x1="50" y1="5" x2="50" y2="95" stroke="rgba(255,255,255,0.4)" strokeWidth="1" />
+
+            {/* Radial Mirror Tile Grid - Horizontal Ellipses */}
+            <ellipse
+              cx="50"
+              cy="50"
+              rx="45"
+              ry="15"
+              fill="none"
+              stroke="rgba(255,255,255,0.4)"
+              strokeWidth="1"
+            />
+            <ellipse
+              cx="50"
+              cy="50"
+              rx="45"
+              ry="30"
+              fill="none"
+              stroke="rgba(255,255,255,0.3)"
+              strokeWidth="1"
+            />
+            <line x1="5" y1="50" x2="95" y2="50" stroke="rgba(255,255,255,0.4)" strokeWidth="1" />
+
+            {/* Bigger, More Sparkles */}
+            {/* Top Left */}
+            <g>
+              <path
+                d="M25 15 L25 35 M15 25 L35 25"
+                stroke="white"
+                strokeWidth="3"
+                strokeLinecap="round"
+              >
+                <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite" />
+                <animateTransform
+                  attributeName="transform"
+                  type="rotate"
+                  from="0 25 25"
+                  to="90 25 25"
+                  dur="2s"
+                  repeatCount="indefinite"
+                />
+              </path>
+            </g>
+            {/* Bottom Right */}
+            <g>
+              <path
+                d="M75 65 L75 85 M65 75 L85 75"
+                stroke="white"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+              >
+                <animate
+                  attributeName="opacity"
+                  values="0;1;0"
+                  dur="1.5s"
+                  begin="0.7s"
+                  repeatCount="indefinite"
+                />
+                <animateTransform
+                  attributeName="transform"
+                  type="rotate"
+                  from="0 75 75"
+                  to="-45 75 75"
+                  dur="1.5s"
+                  repeatCount="indefinite"
+                />
+              </path>
+            </g>
+            {/* Top Right */}
+            <circle cx="80" cy="25" r="4" fill="white">
+              <animate
+                attributeName="opacity"
+                values="0;1;0"
+                dur="2.5s"
+                begin="0.3s"
+                repeatCount="indefinite"
+              />
+              <animate attributeName="r" values="2;5;2" dur="2.5s" repeatCount="indefinite" />
+            </circle>
+            {/* Center Area */}
+            <circle cx="40" cy="40" r="3" fill="white">
+              <animate
+                attributeName="opacity"
+                values="0;0.8;0"
+                dur="3s"
+                begin="1s"
+                repeatCount="indefinite"
+              />
+            </circle>
+          </svg>
+          <h1 style={{ margin: 0, fontSize: "1.8em", color: "#333" }}>Mirror Ball</h1>
+        </div>
         <div>
           {user ? (
             <div style={{ textAlign: "right" }}>
@@ -249,11 +401,60 @@ export default function App() {
         <>
           {view === "gallery" ? (
             <section>
-              <h2>Image Gallery</h2>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: 16,
+                }}
+              >
+                <h2 style={{ margin: 0 }}>Image Gallery</h2>
+                <div style={{ position: "relative", width: "200px" }}>
+                  <input
+                    type="text"
+                    placeholder="Search by title..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{
+                      padding: "8px 32px 8px 12px",
+                      borderRadius: 4,
+                      border: "1px solid #ccc",
+                      width: "100%",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                  {searchTerm && (
+                    <button
+                      onClick={() => setSearchTerm("")}
+                      style={{
+                        position: "absolute",
+                        right: 8,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        background: "none",
+                        border: "none",
+                        color: "#999",
+                        cursor: "pointer",
+                        fontSize: "1.2em",
+                        padding: "0 4px",
+                        lineHeight: 1,
+                      }}
+                      title="Clear search"
+                    >
+                      &times;
+                    </button>
+                  )}
+                </div>
+              </div>
               {isLoadingImages ? (
                 <p>Loading images...</p>
-              ) : images.length === 0 ? (
-                <p>No images found. Go to "Upload New" to add some!</p>
+              ) : filteredImages.length === 0 ? (
+                <p>
+                  {searchTerm
+                    ? "No images match your search."
+                    : 'No images found. Go to "Upload New" to add some!'}
+                </p>
               ) : (
                 <div
                   style={{
@@ -262,7 +463,7 @@ export default function App() {
                     gap: 16,
                   }}
                 >
-                  {images.map((img) => {
+                  {filteredImages.map((img) => {
                     const isPdf = img.originalFileName?.toLowerCase().endsWith(".pdf");
                     return (
                       <div
@@ -304,33 +505,36 @@ export default function App() {
                             style={{ width: "100%", height: 150, objectFit: "cover" }}
                           />
                         )}
-                        <div style={{ padding: 8, fontSize: "0.8em" }}>
+                        <div style={{ padding: 12, fontSize: "0.8em" }}>
                           <div
                             style={{
                               fontWeight: "bold",
-                              whiteSpace: "nowrap",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
+                              wordBreak: "break-word",
+                              marginBottom: 4,
                             }}
                           >
                             {img.title}
                           </div>
                           <div style={{ color: "#666", fontSize: "0.9em", marginBottom: 4 }}>
-                            {img.originalFileName}
+                            {img.dimensions ? img.dimensions : "No dimensions"}{" "}
+                            {img.fileSize ? ` • ${formatFileSize(img.fileSize)}` : ""}
                           </div>
-                          <div style={{ color: "#666", marginBottom: 4 }}>
+                          <div style={{ color: "#666", marginBottom: 8, wordBreak: "break-word" }}>
                             {img.devName} • {new Date(img.uploadTime).toLocaleDateString()}
                           </div>
                           <div
-                            style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: 4,
+                              marginTop: 4,
+                            }}
                           >
                             <div
                               style={{
                                 color: "#007bff",
-                                whiteSpace: "nowrap",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
                                 fontSize: "0.85em",
+                                wordBreak: "break-all",
                               }}
                             >
                               {img.publicUrl}
@@ -341,12 +545,13 @@ export default function App() {
                                 setToast("Link copied to clipboard!");
                               }}
                               style={{
+                                alignSelf: "flex-start",
                                 background: "none",
                                 border: "none",
                                 color: "#007bff",
                                 cursor: "pointer",
                                 fontSize: "0.85em",
-                                padding: 0,
+                                padding: "4px 0",
                                 textDecoration: "underline",
                                 whiteSpace: "nowrap",
                               }}
