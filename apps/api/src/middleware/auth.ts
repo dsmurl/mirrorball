@@ -56,7 +56,7 @@ export async function authenticate(
       (!payload.email ||
         !(payload.email as string).toLowerCase().includes(userRestriction.toLowerCase()))
     ) {
-      return error(403, `Access restricted. Your email must contain "${userRestriction}"`);
+      return error(403, `Access restricted. Your email does not fit criteria."`);
     }
 
     return { claims: payload as Claims, groups };
