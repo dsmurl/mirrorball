@@ -11,6 +11,7 @@ export const ImageSchema = z.object({
   uploadTime: z.string(),
   s3Key: z.string(),
   publicUrl: z.string().url(),
+  status: z.string().optional(),
 });
 
 export type Image = z.infer<typeof ImageSchema>;

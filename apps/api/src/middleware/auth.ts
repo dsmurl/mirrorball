@@ -1,8 +1,9 @@
 import * as jose from "jose";
 import { AdminAddUserToGroupCommand } from "@aws-sdk/client-cognito-identity-provider";
-import { REGION, USER_POOL_ID, ALLOWED_EMAIL_DOMAINS } from "../lib/config.ts";
+import { REGION, USER_POOL_ID } from "../lib/config.ts";
 import { error } from "../lib/responses.ts";
 import { cognito } from "../lib/aws.ts";
+import { fetchUserRestriction } from "../controllers/config.ts";
 
 // JWKS for Cognito
 const jwksUri = USER_POOL_ID
@@ -48,6 +49,16 @@ export async function authenticate(
       }
     }
 
+    // Enforce dynamic userRestriction from DynamoDB
+    const userRestriction = await fetchUserRestriction();
+    if (
+      userRestriction &&
+      (!payload.email ||
+        !(payload.email as string).toLowerCase().includes(userRestriction.toLowerCase()))
+    ) {
+      return error(403, `Access restricted. Your email must contain "${userRestriction}"`);
+    }
+
     return { claims: payload as Claims, groups };
   } catch (e) {
     return error(401, "Invalid token", String(e));
@@ -58,9 +69,14 @@ export function requireRole(groups: string[], role: "dev" | "admin") {
   return groups.includes(role);
 }
 
-export function emailAllowed(email?: string): boolean {
-  if (!ALLOWED_EMAIL_DOMAINS.length) return true; // unrestricted if unset
+export async function emailAllowed(email?: string): Promise<boolean> {
+  const dynamicRestriction = await fetchUserRestriction();
+
+  if (!dynamicRestriction) return true; // unrestricted if unset in DB
   if (!email) return false;
-  const lower = email.toLowerCase();
-  return ALLOWED_EMAIL_DOMAINS.some((d) => lower.endsWith(`@${d}`));
+
+  const lowerEmail = email.toLowerCase();
+  const lowerRestriction = dynamicRestriction.toLowerCase();
+
+  return lowerEmail.includes(lowerRestriction);
 }

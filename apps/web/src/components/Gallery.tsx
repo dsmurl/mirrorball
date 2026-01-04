@@ -1,21 +1,12 @@
-interface ImageItem {
-  imageId: string;
-  title: string;
-  originalFileName: string;
-  dimensions?: string;
-  fileSize?: number;
-  devName: string;
-  uploadTime: string;
-  publicUrl: string;
-}
+import { useImages } from "../hooks/useImages";
+import { useAuthContext } from "../contexts/AuthContext.tsx";
+import { useEnv } from "../hooks/useEnv";
+import { useToast } from "../hooks/useToast.ts";
 
-interface GalleryProps {
-  images: ImageItem[];
-  isLoading: boolean;
+type GalleryProps = {
   searchTerm: string;
   onSearchChange: (term: string) => void;
-  onCopyLink: (url: string) => void;
-}
+};
 
 function formatFileSize(bytes?: number) {
   if (!bytes) return "";
@@ -24,13 +15,34 @@ function formatFileSize(bytes?: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export function Gallery({
-  images,
-  isLoading,
-  searchTerm,
-  onSearchChange,
-  onCopyLink,
-}: GalleryProps) {
+export const Gallery = ({ searchTerm, onSearchChange }: GalleryProps) => {
+  const { token } = useAuthContext();
+  const { API_BASE } = useEnv();
+  const { showToast } = useToast();
+  const { images, isLoading, error } = useImages({ token, apiBase: API_BASE });
+
+  const handleCopyLink = (url: string) => {
+    navigator.clipboard.writeText(url);
+    showToast("Link copied to clipboard!");
+  };
+
+  if (error) {
+    return (
+      <div
+        style={{
+          padding: 20,
+          backgroundColor: "#fff3f3",
+          border: "1px solid #f5c6cb",
+          borderRadius: 4,
+          color: "#721c24",
+        }}
+      >
+        <h3>Access Denied</h3>
+        <p>{error.message || "You do not have permission to view the gallery."}</p>
+      </div>
+    );
+  }
+
   const filteredImages = images.filter((img) =>
     img.title.toLowerCase().includes(searchTerm.toLowerCase()),
   );
@@ -170,7 +182,7 @@ export function Gallery({
                       {img.publicUrl}
                     </div>
                     <button
-                      onClick={() => onCopyLink(img.publicUrl)}
+                      onClick={() => handleCopyLink(img.publicUrl)}
                       style={{
                         alignSelf: "flex-start",
                         background: "none",
@@ -194,4 +206,4 @@ export function Gallery({
       )}
     </section>
   );
-}
+};

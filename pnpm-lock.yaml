@@ -53,6 +53,9 @@ importers:
       vite:
         specifier: ^5.4.8
         version: 5.4.21(@types/node@25.0.3)
+      vite-tsconfig-paths:
+        specifier: ^6.0.3
+        version: 6.0.3(typescript@5.9.3)(vite@5.4.21(@types/node@25.0.3))
 
   apps/api:
     dependencies:
@@ -2841,6 +2844,12 @@ packages:
       }
     hasBin: true
 
+  globrex@0.1.2:
+    resolution:
+      {
+        integrity: sha512-uHJgbwAMwNFf5mLst7IWLNg14x1CkeqglJb/K3doi4dw6q2IvAAmM/Y81kevy83wP+Sst+nutFTYOGg3d1lsxg==,
+      }
+
   google-protobuf@3.21.4:
     resolution:
       {
@@ -4132,6 +4141,19 @@ packages:
       "@swc/wasm":
         optional: true
 
+  tsconfck@3.1.6:
+    resolution:
+      {
+        integrity: sha512-ks6Vjr/jEw0P1gmOVwutM3B7fWxoWBL2KRDb1JfqGVawBmO5UsvmWOQFGHBPl5yxYz4eERr19E6L7NMv+Fej4w==,
+      }
+    engines: { node: ^18 || >=20 }
+    hasBin: true
+    peerDependencies:
+      typescript: ^5.0.0
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
   tsconfig-paths@4.2.0:
     resolution:
       {
@@ -4227,6 +4249,17 @@ packages:
         integrity: sha512-OljLrQ9SQdOUqTaQxqL5dEfZWrXExyyWsozYlAWFawPVNuD83igl7uJD2RTkNMbniIYgt8l81eCJGIdQF7avLQ==,
       }
     engines: { node: ^14.17.0 || ^16.13.0 || >=18.0.0 }
+
+  vite-tsconfig-paths@6.0.3:
+    resolution:
+      {
+        integrity: sha512-7bL7FPX/DSviaZGYUKowWF1AiDVWjMjxNbE8lyaVGDezkedWqfGhlnQ4BZXre0ZN5P4kAgIJfAlgFDVyjrCIyg==,
+      }
+    peerDependencies:
+      vite: "*"
+    peerDependenciesMeta:
+      vite:
+        optional: true
 
   vite@5.4.21:
     resolution:
@@ -6534,6 +6567,8 @@ snapshots:
       package-json-from-dist: 1.0.1
       path-scurry: 1.11.1
 
+  globrex@0.1.2: {}
+
   google-protobuf@3.21.4: {}
 
   gopd@1.2.0: {}
@@ -7325,6 +7360,10 @@ snapshots:
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
 
+  tsconfck@3.1.6(typescript@5.9.3):
+    optionalDependencies:
+      typescript: 5.9.3
+
   tsconfig-paths@4.2.0:
     dependencies:
       json5: 2.2.3
@@ -7373,6 +7412,17 @@ snapshots:
       spdx-expression-parse: 3.0.1
 
   validate-npm-package-name@5.0.1: {}
+
+  vite-tsconfig-paths@6.0.3(typescript@5.9.3)(vite@5.4.21(@types/node@25.0.3)):
+    dependencies:
+      debug: 4.4.3
+      globrex: 0.1.2
+      tsconfck: 3.1.6(typescript@5.9.3)
+    optionalDependencies:
+      vite: 5.4.21(@types/node@25.0.3)
+    transitivePeerDependencies:
+      - supports-color
+      - typescript
 
   vite@5.4.21(@types/node@25.0.3):
     dependencies:

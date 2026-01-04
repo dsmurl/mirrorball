@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 
-export function useToast(duration = 1000) {
+export const useToast = (duration = 1000) => {
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
@@ -16,4 +16,4 @@ export function useToast(duration = 1000) {
   }, []);
 
   return { toast, showToast };
-}
+};

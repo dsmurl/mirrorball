@@ -1,10 +1,13 @@
-interface NavigationProps {
+import { useAuthContext } from "../contexts/AuthContext";
+
+type NavigationProps = {
   view: "gallery" | "upload" | "admin";
   onViewChange: (view: "gallery" | "upload" | "admin") => void;
-  isAdmin: boolean;
-}
+};
 
-export function Navigation({ view, onViewChange, isAdmin }: NavigationProps) {
+export const Navigation = ({ view, onViewChange }: NavigationProps) => {
+  const { isAdmin } = useAuthContext();
+
   return (
     <nav style={{ marginBottom: 24, display: "flex", gap: 16 }}>
       <button
@@ -53,4 +56,4 @@ export function Navigation({ view, onViewChange, isAdmin }: NavigationProps) {
       </button>
     </nav>
   );
-}
+};

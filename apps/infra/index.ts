@@ -43,7 +43,7 @@ const bucketPublicAccess = new aws.s3.BucketPublicAccessBlock("mirror-ball-Bucke
   restrictPublicBuckets: true,
 });
 
-// 2) DynamoDB table (on-demand)
+// 2) DynamoDB tables (on-demand)
 const imagesTable = new aws.dynamodb.Table("mirror-ball-ImagesTable", {
   attributes: [
     { name: "imageId", type: "S" },
@@ -58,6 +58,13 @@ const imagesTable = new aws.dynamodb.Table("mirror-ball-ImagesTable", {
       projectionType: "KEYS_ONLY",
     },
   ],
+  tags: commonTags,
+});
+
+const configTable = new aws.dynamodb.Table("mirror-ball-ConfigTable", {
+  attributes: [{ name: "configKey", type: "S" }],
+  hashKey: "configKey",
+  billingMode: "PAY_PER_REQUEST",
   tags: commonTags,
 });
 
@@ -110,12 +117,11 @@ const ecrRepo = new aws.ecr.Repository("mirror-ball-ApiRepository", {
   tags: commonTags,
 });
 
-// (moved below App Runner so we can wire /api/* to it)
-
 // Outputs
 export const deploymentRegion = region;
-export const bucketName = bucket.bucket;
-export const tableName = imagesTable.name;
+export const imageBucketName = bucket.bucket;
+export const imagesTableName = imagesTable.name;
+export const configTableName = configTable.name;
 export const userPoolId = userPool.id;
 export const userPoolClientId = userPoolClient.id;
 export const userPoolDomain = userPoolDomainResource.domain.apply(
@@ -200,49 +206,51 @@ const appRunnerInstanceRole = new aws.iam.Role("mirror-ball-AppRunnerInstanceRol
 
 const appRunnerInstanceAccess = new aws.iam.RolePolicy("mirror-ball-AppRunnerInstanceAccess", {
   role: appRunnerInstanceRole.id,
-  policy: pulumi.all([bucket.arn, imagesTable.arn, userPool.arn]).apply(([bArn, tArn, uArn]) =>
-    JSON.stringify({
-      Version: "2012-10-17",
-      Statement: [
-        {
-          Sid: "S3ImagesRW",
-          Effect: "Allow",
-          Action: ["s3:PutObject", "s3:GetObject", "s3:DeleteObject", "s3:ListBucket"],
-          Resource: [bArn, `${bArn}/*`],
-        },
-        {
-          Sid: "DynamoDBRW",
-          Effect: "Allow",
-          Action: [
-            "dynamodb:PutItem",
-            "dynamodb:GetItem",
-            "dynamodb:DeleteItem",
-            "dynamodb:Query",
-            "dynamodb:UpdateItem",
-            "dynamodb:Scan",
-          ],
-          Resource: [tArn, `${tArn}/index/*`],
-        },
-        {
-          Sid: "CloudWatchLogs",
-          Effect: "Allow",
-          Action: [
-            "logs:CreateLogGroup",
-            "logs:CreateLogStream",
-            "logs:PutLogEvents",
-            "logs:DescribeLogStreams",
-          ],
-          Resource: "*",
-        },
-        {
-          Sid: "CognitoGroupManagement",
-          Effect: "Allow",
-          Action: ["cognito-idp:AdminAddUserToGroup"],
-          Resource: [uArn],
-        },
-      ],
-    }),
-  ),
+  policy: pulumi
+    .all([bucket.arn, imagesTable.arn, configTable.arn, userPool.arn])
+    .apply(([bArn, tArn, cArn, uArn]) =>
+      JSON.stringify({
+        Version: "2012-10-17",
+        Statement: [
+          {
+            Sid: "S3ImagesRW",
+            Effect: "Allow",
+            Action: ["s3:PutObject", "s3:GetObject", "s3:DeleteObject", "s3:ListBucket"],
+            Resource: [bArn, `${bArn}/*`],
+          },
+          {
+            Sid: "DynamoDBRW",
+            Effect: "Allow",
+            Action: [
+              "dynamodb:PutItem",
+              "dynamodb:GetItem",
+              "dynamodb:DeleteItem",
+              "dynamodb:Query",
+              "dynamodb:UpdateItem",
+              "dynamodb:Scan",
+            ],
+            Resource: [tArn, `${tArn}/index/*`, cArn],
+          },
+          {
+            Sid: "CloudWatchLogs",
+            Effect: "Allow",
+            Action: [
+              "logs:CreateLogGroup",
+              "logs:CreateLogStream",
+              "logs:PutLogEvents",
+              "logs:DescribeLogStreams",
+            ],
+            Resource: "*",
+          },
+          {
+            Sid: "CognitoGroupManagement",
+            Effect: "Allow",
+            Action: ["cognito-idp:AdminAddUserToGroup"],
+            Resource: [uArn],
+          },
+        ],
+      }),
+    ),
 });
 
 // CloudFront OAC + Distribution (serves site/ and images/ + routes /api/* to App Runner)
@@ -284,8 +292,10 @@ const imageConfiguration: aws.types.input.apprunner.ServiceSourceConfigurationIm
         .apply((arr: string[] | undefined) => (arr && arr.length ? arr.join(",") : "")),
       AWS_REGION: region,
       BUCKET_NAME: bucket.bucket,
-      TABLE_NAME: imagesTable.name,
+      IMAGE_TABLE_NAME: imagesTable.name,
+      CONFIG_TABLE_NAME: configTable.name,
       USER_POOL_ID: userPool.id,
+      // CLOUDFRONT_DOMAIN: apiDomain, // REMOVED to break circular dependency
     },
   };
 
@@ -437,7 +447,3 @@ const bucketPolicy = new aws.s3.BucketPolicy("mirror-ball-BucketPolicy", {
 // Update outputs now that CloudFront is created
 export const cloudFrontDomainName = cfDistribution.domainName;
 export const cloudFrontDistributionId = cfDistribution.id;
-
-// We use an ignoreChanges on callbackUrls to allow manual additions if needed,
-// but for the first run, we want it to be clean.
-// Alternatively, we could update the client here, but it's risky.

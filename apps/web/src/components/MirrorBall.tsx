@@ -1,4 +1,4 @@
-export function MirrorBall() {
+export const MirrorBall = () => {
   return (
     <svg
       width="44"
@@ -116,4 +116,4 @@ export function MirrorBall() {
       </circle>
     </svg>
   );
-}
+};

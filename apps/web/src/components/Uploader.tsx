@@ -1,27 +1,111 @@
-interface UploaderProps {
-  onUpload: (title: string, file: File) => Promise<void>;
-  isUploading: boolean;
-  status: string;
-}
-
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
-export function Uploader({ onUpload, isUploading, status }: UploaderProps) {
+import { useAuthContext } from "../contexts/AuthContext";
+import { useEnv } from "../hooks/useEnv";
+
+type UploaderProps = {
+  onSuccess: () => void;
+};
+
+export const Uploader = ({ onSuccess }: UploaderProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
+  const [status, setStatus] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const { token } = useAuthContext();
+  const { API_BASE } = useEnv();
+  const queryClient = useQueryClient();
+
+  const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file || !title) return;
-    await onUpload(title, file);
-    setFile(null);
-    setTitle("");
+    if (!file || !title || !token) return;
+
+    setIsUploading(true);
+    setStatus("Reading file dimensions...");
+
+    let dimensions = "";
+    if (file.type.startsWith("image/")) {
+      dimensions = await new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(`${img.width}x${img.height}`);
+        img.onerror = () => resolve("");
+        img.src = URL.createObjectURL(file);
+      });
+    }
+
+    setStatus("Getting pre-signed URL...");
+
+    try {
+      // 1. Get pre-signed URL
+      const presignRes = await fetch(`${API_BASE}/presign-upload`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          contentType: file.type,
+          fileName: file.name,
+          title: title,
+          dimensions: dimensions || undefined,
+          fileSize: file.size,
+        }),
+      });
+
+      if (!presignRes.ok) throw new Error(await presignRes.text());
+      const { uploadUrl, imageId } = await presignRes.json();
+
+      // 2. Upload to S3
+      setStatus("Uploading to S3...");
+      const s3Res = await fetch(uploadUrl, {
+        method: "PUT",
+        body: file,
+        headers: {
+          "Content-Type": file.type,
+        },
+      });
+
+      if (!s3Res.ok) throw new Error("S3 upload failed");
+
+      // 3. Confirm upload
+      setStatus("Confirming with API...");
+      const confirmRes = await fetch(`${API_BASE}/confirm-upload`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ imageId }),
+      });
+
+      if (!confirmRes.ok) throw new Error("Confirmation failed");
+
+      setStatus("Upload successful!");
+      setFile(null);
+      setTitle("");
+
+      // Invalidate images query to refresh the gallery
+      await queryClient.invalidateQueries({ queryKey: ["images"] });
+
+      // Notify parent to switch view
+      setTimeout(() => {
+        onSuccess();
+        setStatus("");
+      }, 1500);
+    } catch (err: any) {
+      console.error(err);
+      setStatus(`Error: ${err.message}`);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
     <section style={{ border: "1px solid #ccc", padding: 16, borderRadius: 8 }}>
       <h2>Upload Image</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleUpload}>
         <div style={{ marginBottom: 12 }}>
           <label style={{ display: "block", fontWeight: "bold", marginBottom: 4 }}>Title:</label>
           <input
@@ -73,4 +157,4 @@ export function Uploader({ onUpload, isUploading, status }: UploaderProps) {
       )}
     </section>
   );
-}
+};

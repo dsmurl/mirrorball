@@ -47,7 +47,7 @@ Environment variables commonly used by the API:
 
 - `PORT` (default 8080)
 - `AWS_REGION` (e.g., us-west-2)
-- `BUCKET_NAME`, `TABLE_NAME` (from Pulumi outputs if pointing at AWS)
+- `BUCKET_NAME`, `IMAGE_TABLE_NAME`, `CONFIG_TABLE_NAME` (from Pulumi outputs if pointing at AWS)
 - `USER_POOL_ID` (Cognito User Pool ID)
 - `ALLOWED_EMAIL_DOMAINS` (optional, comma-separated; if unset/empty, no domain restriction)
 

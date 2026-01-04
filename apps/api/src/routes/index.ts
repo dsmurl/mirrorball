@@ -1,6 +1,7 @@
 import { healthCheck } from "../controllers/health.ts";
 import { presignUpload, confirmUpload } from "../controllers/uploads.ts";
 import { listImages, deleteImage } from "../controllers/images.ts";
+import { setConfig, getConfig } from "../controllers/config.ts";
 import { notFound, json } from "../lib/responses.ts";
 
 export async function handleRequest(req: Request): Promise<Response> {
@@ -31,6 +32,11 @@ export async function handleRequest(req: Request): Promise<Response> {
 
   if (method === "DELETE" && path.startsWith("/api/images/")) {
     return deleteImage(req);
+  }
+
+  if (path === "/api/config") {
+    if (method === "POST") return setConfig(req);
+    if (method === "GET") return getConfig(req);
   }
 
   return notFound();

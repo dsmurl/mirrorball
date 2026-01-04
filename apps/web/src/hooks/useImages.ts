@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-interface ImageItem {
+type ImageItem = {
   imageId: string;
   title: string;
   originalFileName: string;
@@ -9,14 +9,14 @@ interface ImageItem {
   devName: string;
   uploadTime: string;
   publicUrl: string;
-}
+};
 
-interface useImagesProps {
+type useImagesProps = {
   token: string;
   apiBase: string;
-}
+};
 
-export function useImages({ token, apiBase }: useImagesProps) {
+export const useImages = ({ token, apiBase }: useImagesProps) => {
   const query = useQuery({
     queryKey: ["images", token],
     queryFn: async () => {
@@ -36,4 +36,4 @@ export function useImages({ token, apiBase }: useImagesProps) {
     error: query.error,
     refetch: query.refetch,
   };
-}
+};

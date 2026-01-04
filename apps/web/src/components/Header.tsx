@@ -1,12 +1,12 @@
 import { MirrorBall } from "./MirrorBall";
 
-interface HeaderProps {
+type HeaderProps = {
   user: any;
   onLogin: () => void;
   onLogout: () => void;
-}
+};
 
-export function Header({ user, onLogin, onLogout }: HeaderProps) {
+export const Header = ({ user, onLogin, onLogout }: HeaderProps) => {
   return (
     <header
       style={{
@@ -38,4 +38,4 @@ export function Header({ user, onLogin, onLogout }: HeaderProps) {
       </div>
     </header>
   );
-}
+};

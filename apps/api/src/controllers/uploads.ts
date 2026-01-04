@@ -3,13 +3,13 @@ import {
   PresignUploadInput,
   PresignUploadOutput,
   ConfirmUploadInput,
-} from "@mirror-ball/shared-schemas/api.ts";
+} from "@mirror-ball/shared-schemas/api";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { PutCommand, UpdateCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { ulid } from "ulid";
 import { s3, doc } from "../lib/aws.ts";
-import { BUCKET_NAME, TABLE_NAME, REGION, CLOUDFRONT_DOMAIN } from "../lib/config.ts";
+import { BUCKET_NAME, IMAGE_TABLE_NAME, REGION, CLOUDFRONT_DOMAIN } from "../lib/config.ts";
 import { json, error } from "../lib/responses.ts";
 import { authenticate, requireRole, emailAllowed } from "../middleware/auth.ts";
 
@@ -27,12 +27,12 @@ export async function presignUpload(req: Request) {
   const { contentType, fileName, title, dimensions, fileSize } = parsed.data;
 
   if (!BUCKET_NAME) return error(500, "BUCKET_NAME not configured");
-  if (!TABLE_NAME) return error(500, "TABLE_NAME not configured");
+  if (!IMAGE_TABLE_NAME) return error(500, "TABLE_NAME not configured");
 
   // Check for title uniqueness using GSI
   const existing = await doc.send(
     new QueryCommand({
-      TableName: TABLE_NAME,
+      TableName: IMAGE_TABLE_NAME,
       IndexName: "TitleIndex",
       KeyConditionExpression: "title = :t",
       ExpressionAttributeValues: { ":t": title },
@@ -65,7 +65,7 @@ export async function presignUpload(req: Request) {
   // Write stub item (pending)
   await doc.send(
     new PutCommand({
-      TableName: TABLE_NAME,
+      TableName: IMAGE_TABLE_NAME,
       Item: {
         imageId,
         owner,
@@ -105,11 +105,11 @@ export async function confirmUpload(req: Request) {
   if (!parsed.success) return error(400, "Invalid body", parsed.error.issues);
   const { imageId } = parsed.data;
 
-  if (!TABLE_NAME) return error(500, "TABLE_NAME not configured");
+  if (!IMAGE_TABLE_NAME) return error(500, "TABLE_NAME not configured");
 
   await doc.send(
     new UpdateCommand({
-      TableName: TABLE_NAME,
+      TableName: IMAGE_TABLE_NAME,
       Key: { imageId },
       UpdateExpression: "SET #s = :s",
       ExpressionAttributeNames: { "#s": "status" },
