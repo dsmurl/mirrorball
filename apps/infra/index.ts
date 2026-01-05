@@ -359,6 +359,7 @@ const appRunnerService = new aws.apprunner.Service(
   {
     dependsOn: [appRunnerInstanceAccess],
     replaceOnChanges: ["sourceConfiguration.imageRepository.imageRepositoryType"],
+    deleteBeforeReplace: true,
   },
 );
 
