@@ -1,4 +1,7 @@
-# Mirror-ball
+# mirror-ball
+
+Welcome to the best mirror ball project ever!
+Rated the best image hosting project of 2025 by [New York Timus](https://elementor.com/blog/best-free-image-hosting-sites/).
 
 Simple image upload and listing site with role-based access, built as an Nx monorepo. Frontend (Vite) and backend (Bun) share Zod schemas. Infra is provisioned with Pulumi on AWS (S3, CloudFront, Cognito, DynamoDB, App Runner).
 
@@ -43,13 +46,15 @@ pnpm install
 pnpm nx run api:dev
 ```
 
-Environment variables commonly used by the API:
+Environment variables commonly used by the API (place in `apps/api/.env`):
 
 - `PORT` (default 8080)
 - `AWS_REGION` (e.g., us-west-2)
-- `BUCKET_NAME`, `IMAGE_TABLE_NAME`, `CONFIG_TABLE_NAME` (from Pulumi outputs if pointing at AWS)
-- `USER_POOL_ID` (Cognito User Pool ID)
-- `ALLOWED_EMAIL_DOMAINS` (optional, comma-separated; if unset/empty, no domain restriction)
+- `IMAGE_TABLE_NAME` - from `pulumi stack output`
+- `CONFIG_TABLE_NAME` - from `pulumi stack output`
+- `BUCKET_NAME` - from `pulumi stack output`
+- `CLOUDFRONT_DOMAIN` - from `pulumi stack output`
+- `USER_POOL_ID` - from `pulumi stack output`
 
 3. Start the web app (Vite)
 
@@ -57,16 +62,12 @@ Environment variables commonly used by the API:
 pnpm nx run web:dev
 ```
 
-Recommended `.env` in `apps/web/` (or export in your shell):
+Recommended `.env` in `apps/web/`:
 
-You can get these from Pulumi outputsm from the AWS console, or `pnpm pulumi stack output`.
-
-- `VITE_API_BASE_URL` — e.g., `http://localhost:8080/api` (local) or `https://<cloudfront-domain>/api`
-- `VITE_USER_POOL_ID` — Pulumi output
-- `VITE_USER_POOL_CLIENT_ID` — Pulumi output
-- `VITE_COGNITO_DOMAIN` — Pulumi output
-- `VITE_CLOUDFRONT_DOMAIN` — CloudFront domain (for image/public URLs)
-- `VITE_ALLOWED_EMAIL_DOMAINS` — optional; UI hint only
+- `VITE_API_BASE_URL` — e.g., `http://localhost:8080/api`
+- `VITE_USER_POOL_ID` - from `pulumi stack output`
+- `VITE_USER_POOL_CLIENT_ID` - from `pulumi stack output`
+- `VITE_COGNITO_DOMAIN` - from `pulumi stack output` (e.g., `https://<domain>.auth.us-west-2.amazoncognito.com`)
 
 Notes:
 

@@ -38,7 +38,7 @@ Notes
 
 Email domain control options (no Lambdas required)
 
-- Primary (simple, immediate): API-level enforcement. The Bun API reads an `ALLOWED_EMAIL_DOMAINS` config (comma-separated list) and rejects upload/delete endpoints when the Cognito token `email` claim is not in an allowed domain. Listing/search remains available to authenticated users regardless of domain. If `ALLOWED_EMAIL_DOMAINS` is not set or is empty, no domain restriction is applied (uploads/deletes allowed subject to role checks only).
+- Primary: Dynamic API-level enforcement. An administrator can set a `userRestriction` string (e.g., `@example.com`) via the Admin Panel in the UI. The Bun API stores this in a global configuration table in DynamoDB. The API middleware fetches this configuration and rejects upload/delete/config endpoints when the Cognito token `email` claim does not contain the restriction string (case-insensitive). Listing/search remains available to authenticated users. If `userRestriction` is not set or is empty, no restriction is applied.
 - Optional (stronger at identity layer): Use Cognito federated IdP with a Google Workspace OIDC provider restricted to your company domain. Disable native signup/self-registration to ensure only employees can sign in via Workspace. This requires adding a Cognito OIDC provider but no Lambda triggers.
 
 #### 3) Roles & Authorization Model
@@ -49,10 +49,10 @@ Email domain control options (no Lambdas required)
 - Cognito groups are carried as JWT claims. The Bun API validates tokens (User Pool JWKS) and authorizes by `cognito:groups` claim.
 - Keep S3 bucket private; access via CloudFront (public read) and pre-signed URLs for uploads; deletes only by admin via API call.
 
-Email domain allowlist enforcement
+Email restriction enforcement
 
-- New policy layer: Upload and delete actions require that the authenticated user's `email` claim ends with one of the configured allowed domains (e.g., `@example.com`). If not matched, return HTTP 403.
-- This check is orthogonal to roles. A user must both have the correct role and pass the domain check to upload/delete.
+- New policy layer: Upload, delete, and configuration actions require that the authenticated user's `email` claim contains the configured `userRestriction` string (e.g., `@example.com`). If not matched, return HTTP 403.
+- This check is orthogonal to roles. A user must both have the correct role and pass the email restriction check to perform restricted actions.
 
 #### 4) Data Model (DynamoDB single-table)
 
@@ -104,10 +104,11 @@ Schema-first contracts with Zod
 
 Authorization details
 
-- In addition to role checks, enforce an email domain allowlist for mutating endpoints (presign-upload, confirm-upload, delete). Pseudocode:
+- In addition to role checks, enforce a dynamic email restriction for mutating endpoints (presign-upload, confirm-upload, delete, config). Pseudocode:
   - Parse `email` from ID token claims.
-  - If `ALLOWED_EMAIL_DOMAINS` is set and non-empty, ensure `email.toLowerCase().endsWith('@' + anyAllowedDomain)`. Otherwise (unset or empty), allow by default (no domain restriction).
-  - If not matched, return 403 with message "Uploads restricted to company domain".
+  - Fetch `userRestriction` from the configuration table in DynamoDB.
+  - If `userRestriction` is set and non-empty, ensure `email.toLowerCase().includes(userRestriction.toLowerCase())`. Otherwise (unset or empty), allow by default (no restriction).
+  - If not matched, return 403 with message "Access restricted. Your email does not fit criteria."
 
 #### 6) Frontend (Vite)
 
@@ -124,10 +125,6 @@ Authorization details
 Shared types usage
 
 - Import Zod schemas and inferred types from the shared Nx library. Use them to validate any data coming from the API (optional client-side safety) and to type API client functions.
-
-UX note for domain restriction
-
-- Read a public config var `VITE_ALLOWED_EMAIL_DOMAINS` (optional) to display an informative message on the upload screen if the signed-in user’s email is not in an allowed domain, and disable the upload button client-side. Server remains the source of truth.
 
 #### 7) Infrastructure (Pulumi, AWS)
 
@@ -188,7 +185,6 @@ Create `apps/infra/permissions/policies.json` containing:
 - Nx workspace at repo root. Use `pnpm`.
 - Frontend: `nx serve web` with environment variables `VITE_API_BASE_URL`, `VITE_USER_POOL_ID`, `VITE_USER_POOL_CLIENT_ID`, `VITE_CLOUDFRONT_DOMAIN`.
 - Bun API service: `nx serve api` (wrapper for `bun --watch apps/api/src/main.ts`), runs on localhost with JWT validation against Cognito JWKS. Configure local `.env` for AWS creds or use a named AWS profile.
-- Domain restriction config for dev: set `ALLOWED_EMAIL_DOMAINS=example.com` in the API environment. Optionally set `VITE_ALLOWED_EMAIL_DOMAINS=example.com` for the frontend.
 - Pulumi: `nx run infra:up` (wrapper around `pulumi up`) against `dev` stack. Pulumi program resides in `apps/infra/`.
 
 Shared library development
@@ -213,13 +209,13 @@ Note: Prefer GitHub Actions for deployments over manual CLI. The plan below (Sec
 Two-stage deployment flow
 
 - Stage 1 (Infra provisioning): Pulumi creates/updates all AWS resources that do not depend on CI-provided connection details: S3 bucket, CloudFront + OAC, DynamoDB, Cognito (pool + app client), ECR repo, App Runner service skeleton (can be created without final image/envs), IAM roles/policies. Outputs include ARNs and names needed by CI.
-- Stage 2 (Service wiring via CI env): GitHub Actions supplies connection/env details (e.g., image URI, `ALLOWED_EMAIL_DOMAINS`, OIDC role ARNs) as environment variables/vars at workflow time. Pulumi reads these from stack config or environment to update the App Runner service to the desired image and environment variables. This separates immutable infra from frequently changing configuration.
+- Stage 2 (Service wiring via CI env): GitHub Actions supplies connection/env details (e.g., image URI, OIDC role ARNs) as environment variables/vars at workflow time. Pulumi reads these from stack config or environment to update the App Runner service to the desired image and environment variables. This separates immutable infra from frequently changing configuration.
 
 Secrets/variables strategy
 
 - OIDC role ARNs: set as GitHub repository/environment variables (e.g., `AWS_ROLE_DEPLOYER_ARN`, `AWS_ROLE_DESTROYER_ARN`); referenced only by workflows, not committed in code.
 - ECR repository name/URI: Pulumi creates the ECR repository and exports `ecrRepositoryUri`. CI reads it via `pulumi stack output` or uses a mirrored GitHub variable. Image tags use the commit SHA.
-- App Runner connection: image URI and env vars (e.g., `ALLOWED_EMAIL_DOMAINS`) are provided in Stage 2; Pulumi updates the service accordingly.
+- App Runner connection: image URI and env vars are provided in Stage 2; Pulumi updates the service accordingly.
 
 #### 11) Non-Functional Requirements
 
@@ -227,7 +223,7 @@ Secrets/variables strategy
 - Least-privilege IAM for all services.
 - Idempotent Pulumi deployments.
 - Reasonable costs: on-demand DynamoDB, App Runner (or minimal ECS), CloudFront.
-- Configurability: Allowed email domains must be controlled via Pulumi stack config and surfaced as environment variables to API (and optionally frontend) without code changes.
+- Configurability: Application configuration is stored in DynamoDB and manageable via the UI without code changes.
 - Contract single source of truth: All API request/response and core entity shapes are defined once in Zod schemas under the shared library; both apps consume inferred types.
 
 #### 12) Milestones & Deliverables
@@ -257,7 +253,7 @@ M3 — API Service MVP
 - Bun service endpoints: `presign-upload`, `confirm-upload`, `list-images`, `delete-image`
 - Containerization: Multi-stage Dockerfile for Bun API (builder + runtime), ECR repo, App Runner service created via Pulumi
 - IAM roles/policies attached from `apps/infra/permissions/policies.json`
-- Config: API reads `ALLOWED_EMAIL_DOMAINS` env and enforces domain allowlist for upload/delete
+- Config: API fetches `userRestriction` from DynamoDB and enforces the restriction for restricted endpoints.
 - Contracts: API validates inputs/outputs using shared Zod schemas; on 400/403 returns a JSON error shape defined in shared lib
 - Docs: `docs/api-local-dev.md` (how to run API locally, required env vars) and `docs/api-deploy.md` (how CI deploys API)
 
@@ -267,7 +263,6 @@ M4 — Frontend (web) MVP
 - Upload flow with pre-signed URL + confirm
 - List/search page
 - Delete (admin-only)
-- Optional: If `VITE_ALLOWED_EMAIL_DOMAINS` is set, UI disables upload for users not in allowed domains (server remains authoritative)
 - Contracts: Frontend imports shared types/schemas to type API client and optionally validate responses
 - Docs: `docs/frontend-local-dev.md` (how to run locally) and `docs/frontend-deploy.md` (CI deploy steps)
 
@@ -287,7 +282,7 @@ M5 — Deploy & Verify
 - List/search returns expected results and is fast enough for initial scale
 - Delete restricted to admin; removes S3 object and DB entry
 - All resources created/updated via Pulumi; permissions defined in-repo
-- Domain restriction: Users whose `email` is not in the configured allowed domain(s) cannot obtain upload pre-sign URLs nor delete images (403), while allowed-domain users can.
+- Domain restriction: Users whose `email` does not contain the dynamic `userRestriction` configured in the Admin Panel cannot obtain upload pre-sign URLs, delete images, or update configuration (403), while authorized users can.
 - Documentation cross-links: Root `README.md` contains a Docs index with links to all subdocs; each subdoc contains a link back to the root `README.md`.
 - Shared contracts: A single Zod schema source compiles in both apps; API validates inputs and normalizes outputs against those schemas; CI typecheck catches drift.
 - Data access: Minimal repository functions operate correctly against DynamoDB using the Document Client; no heavy ORM is required for MVP.
@@ -307,7 +302,6 @@ M5 — Deploy & Verify
 
 - Init Pulumi project in `apps/infra/` (TypeScript program)
 - Define config schema for stack (region default `us-west-2`, domain optional)
-- Add `allowedEmailDomains` (string list) stack config; default to `[]`. Example: `["example.com"]`
 
 3. Permissions
 
@@ -337,7 +331,7 @@ M5 — Deploy & Verify
 - Validate all request/response bodies using the shared Zod schemas
 - Add multi-stage Dockerfile for Bun API (Stage 1: build; Stage 2: slim runtime). Create ECR repo; build and push image
 - Create App Runner service (or ECS Fargate) with execution role attached
-- Wire Pulumi stack config `allowedEmailDomains` to App Runner/ECS service environment variable `ALLOWED_EMAIL_DOMAINS` (join list by comma); if empty or unset, the API will not apply any email-domain restriction.
+- Wire Pulumi stack config for the configuration table in DynamoDB. The API will fetch the `userRestriction` from this table. If empty or unset, the API will not apply any email restriction.
 - Export `apiBaseUrl`
 - Write `docs/api-local-dev.md` and `docs/api-deploy.md` (include a back-link to the root `README.md` at the top of each)
 
@@ -352,7 +346,6 @@ M5 — Deploy & Verify
 - Env config: `.env` with outputs from Pulumi
 - Implement auth flow (Hosted UI), read groups from ID token
 - Implement upload + confirm, list/search, admin delete
-- Optional: Respect `VITE_ALLOWED_EMAIL_DOMAINS` to conditionally disable upload UI
 - Consume shared Zod schemas for typing the API client and validating selected responses
 - Build script to publish to S3 `site/`
 - Write `docs/frontend-local-dev.md` and `docs/frontend-deploy.md` (each must include a back-link to the root `README.md`)
@@ -361,11 +354,12 @@ M5 — Deploy & Verify
 
 - Build and push API image; perform two-stage deployment:
   - Stage 1: Provision/update core infra via `pulumi up` (resources only)
-  - Stage 2: Update service wiring via `pulumi up` providing image URI and env vars from CI (e.g., `ALLOWED_EMAIL_DOMAINS`)
+  - Stage 2: Update service wiring via `pulumi up` providing image URI and env vars from CI.
 - Upload site assets to S3 `site/`
 - Manual test scenarios for dev and admin
 - Write `docs/runbook.md` (checklist for verification; include a back-link to the root `README.md`)
 - Add `destroy.yml` workflow using OIDC to assume `mirror-ball-destroyer` and run `pulumi destroy` (document in `docs/ci-cd.md` and `docs/infra-setup.md`).
+- Manual test scenarios for user restriction via Admin Panel.
 
 #### 15) Open Questions / Decisions to Confirm
 
@@ -373,7 +367,7 @@ M5 — Deploy & Verify
 - Use Hosted UI redirect URIs tied to CloudFront domain only, or also localhost for dev? (Recommend both.)
 - Do we need full-text search on metadata? (Plan assumes simple filters/prefix scans.)
 - Prefer App Runner in target region; fallback to ECS Fargate if App Runner is unavailable. DECISION: Use App Runner in `us-west-2`.
-- Domain control approach: DECISION — Option A (API-only allowlist via `allowedEmailDomains`). Behavior: if unset/empty, no restriction.
+- Domain control approach: DECISION — Dynamic API-level enforcement based on DynamoDB configuration. Behavior: if unset/empty, no restriction. Admin Panel in UI allows updating this restriction.
 - DynamoDB data access:
   - Start with minimal helpers + Zod at edges (recommended for MVP), or adopt a library now?
   - If library: prefer DynamoDB Toolbox for ergonomics; confirm Bun compatibility in your environment.
@@ -387,7 +381,7 @@ M5 — Deploy & Verify
   - Keep link paths relative to the repository root to ensure they work in GitHub UI and locally.
 - General rule: As each app/area is implemented, include or update a doc in `docs/` explaining how to develop, run, and deploy it via GitHub Actions. Minimum set:
   - `docs/infra-setup.md`
-    - Pulumi stack config keys (region, allowedEmailDomains, etc.)
+    - Pulumi stack config keys (region, etc.)
     - AWS requirements: IAM roles, OIDC trust for GitHub Actions, permissions boundaries if any
     - Two roles via OIDC: `mirror-ball-creator` (deploy/update) and `mirror-ball-destroyer` (destroy). Detail least-privilege policies and guardrails.
     - How CI uses Pulumi (no local CLI required)

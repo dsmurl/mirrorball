@@ -5,7 +5,6 @@ import * as aws from "@pulumi/aws";
 const config = new pulumi.Config();
 const awsConfig = new pulumi.Config("aws");
 const region = awsConfig.require("region");
-const allowedEmailDomains = config.getObject<string[]>("allowedEmailDomains") ?? [];
 const commonTags = {
   project: "mirror-ball",
   managedBy: "pulumi",
@@ -128,7 +127,6 @@ export const userPoolDomain = userPoolDomainResource.domain.apply(
   (d) => `https://${d}.auth.${region}.amazoncognito.com`,
 );
 export const ecrRepositoryUri = ecrRepo.repositoryUrl;
-export const allowedDomains = pulumi.output(allowedEmailDomains);
 // Placeholder (set after distribution is created below)
 // export const cloudFrontDomainName = pulumi.output("<pending>");
 // 6) App Runner service (Stage 1 skeleton) — image tag will be updated by CI in Stage 2
@@ -287,9 +285,6 @@ const imageConfiguration: aws.types.input.apprunner.ServiceSourceConfigurationIm
   {
     port: "8080",
     runtimeEnvironmentVariables: {
-      ALLOWED_EMAIL_DOMAINS: pulumi
-        .output(allowedEmailDomains)
-        .apply((arr: string[] | undefined) => (arr && arr.length ? arr.join(",") : "")),
       AWS_REGION: region,
       BUCKET_NAME: bucket.bucket,
       IMAGE_TABLE_NAME: imagesTable.name,

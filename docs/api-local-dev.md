@@ -13,10 +13,8 @@ This guide explains how to run the Bun API locally, configure env vars, and test
 ## Environment
 
 - `PORT` (default: 8080)
-- `ALLOWED_EMAIL_DOMAINS` (optional; comma-separated). If unset/empty, no domain restriction is applied.
-- Cognito config (when wiring auth):
-  - `COGNITO_USER_POOL_ID`
-  - `COGNITO_JWKS_URI` (derived from the pool region/id)
+- `COGNITO_USER_POOL_ID`
+- `COGNITO_JWKS_URI` (derived from the pool region/id)
 
 ## Run
 

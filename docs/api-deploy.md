@@ -8,13 +8,12 @@ The API is containerized and deployed to AWS App Runner in `us-west-2`. Deployme
 
 1. Build the API image from `apps/api/` and tag with the commit SHA.
 2. Push the image to ECR.
-3. Run `pulumi up` in `apps/infra/` to update the App Runner service to the new image and apply config (e.g., `ALLOWED_EMAIL_DOMAINS`).
+3. Run `pulumi up` in `apps/infra/` to update the App Runner service to the new image and apply config.
 
 ## Required AWS/Pulumi config
 
 - Pulumi stack config (in `apps/infra/`):
   - `aws:region`: `us-west-2` (default)
-  - `allowedEmailDomains`: string list (optional). If absent/empty, no domain restriction is enforced by the API.
 
 ## GitHub secrets/vars
 

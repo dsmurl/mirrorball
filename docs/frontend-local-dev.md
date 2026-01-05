@@ -23,7 +23,6 @@ Create `.env` in `apps/web/` (or use your shell) with:
 - `VITE_USER_POOL_CLIENT_ID` — from Pulumi output
 - `VITE_COGNITO_DOMAIN` — from Pulumi output (e.g., `https://mirror-ball-dev-123.auth.us-west-2.amazoncognito.com`)
 - `VITE_CLOUDFRONT_DOMAIN` — CloudFront domain (for image/public URLs)
-- `VITE_ALLOWED_EMAIL_DOMAINS` — optional, comma-separated; used only for UI hints (server remains authoritative)
 
 ## Notes
 

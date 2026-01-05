@@ -7,7 +7,7 @@ Use this checklist after a fresh deploy to validate core functionality.
 ## Pre-requisites
 
 - GitHub OIDC roles exist: `mirror-ball-creator`, `mirror-ball-destroyer`.
-- Pulumi stack configured in `apps/infra/` (region us-west-2; optional `allowedEmailDomains`).
+- Pulumi stack configured in `apps/infra/` (region us-west-2).
 
 ## Infra validation
 
@@ -31,7 +31,7 @@ Use this checklist after a fresh deploy to validate core functionality.
 - Verify metadata written in DynamoDB.
 - List: `GET /api/images` shows the new image.
 - Delete: `DELETE /api/images/:imageId` works for admin; returns 403 for dev.
-- If `allowedEmailDomains` is set, verify users outside allowed domains receive 403 on mutating endpoints.
+- Verify user restriction set via Admin Panel correctly blocks/allows users on mutating endpoints.
 
 ## Frontend
 

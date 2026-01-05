@@ -9,7 +9,6 @@ This document describes the Pulumi stacks, required AWS IAM roles, and GitHub OI
 - Default region: `us-west-2`
 - Config keys:
   - `aws:region` (string; required; the AWS region to deploy into)
-  - `allowedEmailDomains` (string list; optional; if absent/empty, no email-domain restriction)
 
 ## Kickstart Guide
 
@@ -120,9 +119,6 @@ If you want to run it locally:
     # Set the AWS provider region (namespaced to 'aws')
     # This is the single source of truth for the region.
     pulumi config set aws:region us-west-2
-
-    # Set project-specific configs (defaults to 'mirror-ball-infra' namespace)
-    pulumi config set --path 'allowedEmailDomains[0]' "example.com"
     ```
 
     ### Where are these values stored?
@@ -136,8 +132,7 @@ If you want to run it locally:
 
     _Note:_
     - **Stack-specific**: These values are unique to the `dev` stack. If you create a `prod` stack, you will need to set them again for that stack.
-    - **Namespacing**: `aws:region` tells the AWS provider which region to use. Our code also reads this value to configure the App Runner service. `allowedEmailDomains` is a custom key; since it doesn't have a prefix, Pulumi automatically namespaces it to the project name (`mirror-ball-infra`).
-    - `allowedEmailDomains` is optional. If you don't want to restrict by domain, you can skip it.
+    - **Namespacing**: `aws:region` tells the AWS provider which region to use. Our code also reads this value to configure the App Runner service.
 
 5.  **Preview the deploy**:
 
