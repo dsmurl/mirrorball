@@ -261,25 +261,40 @@ const oac = new aws.cloudfront.OriginAccessControl(`${prefix}-Oac`, {
 
 // 6) App Runner service
 const forceUsePublicImageEnv = process.env.FORCE_USE_PUBLIC_IMAGE;
-const forceUsePublicImage =
-  forceUsePublicImageEnv === undefined ? true : forceUsePublicImageEnv === "true";
+console.log(`[infra] process.env.FORCE_USE_PUBLIC_IMAGE: "${forceUsePublicImageEnv}"`);
 
 // Check if the ECR image exists (to auto-switch to Skeleton Mode if missing)
 // We use a regular Promise check because Pulumi Outputs don't support a clean .catch() or error handler for missing resources during preview
 const imageExists = pulumi.all([ecrRepo.name, imageTag]).apply(async ([repoName, tag]) => {
+  console.log(`[infra] imageExists check starting for ${repoName}:${tag}`);
   try {
     const img = await aws.ecr.getImage({
       repositoryName: repoName,
       imageTag: tag,
     });
-    return !!img.imageDigest;
-  } catch {
+    const exists = !!img.imageDigest;
+    console.log(
+      `[infra] imageExists result: ${repoName}:${tag} -> exists: ${exists}, digest: ${img.imageDigest}`,
+    );
+    return exists;
+  } catch (err: any) {
+    // If it's a RepositoryNotFoundException or ImageNotFoundException, it's expected for skeleton mode
+    console.log(`[infra] imageExists error for ${repoName}:${tag}: ${err.message || err}`);
     return false;
   }
 });
 
-// Logic: forceUsePublicImage "true" wins, otherwise check if the image exists
-const usePublicImage = forceUsePublicImage || imageExists.apply((exists: boolean) => !exists);
+// Logic: Use environment variable if provided, otherwise auto-detect based on ECR image existence.
+const usePublicImage =
+  forceUsePublicImageEnv !== undefined
+    ? forceUsePublicImageEnv !== "false"
+    : imageExists.apply((exists) => !exists);
+
+pulumi.all([forceUsePublicImageEnv, usePublicImage, imageTag]).apply(([env, use, tag]) => {
+  console.log(
+    `[infra] Image selection: FORCE_USE_PUBLIC_IMAGE=${env}, final usePublicImage=${use}, imageTag=${tag}`,
+  );
+});
 
 const imageConfiguration: aws.types.input.apprunner.ServiceSourceConfigurationImageRepositoryImageConfiguration =
   {
@@ -294,24 +309,32 @@ const imageConfiguration: aws.types.input.apprunner.ServiceSourceConfigurationIm
     },
   };
 
-const sourceConfiguration: aws.types.input.apprunner.ServiceSourceConfiguration = usePublicImage
-  ? {
-      imageRepository: {
-        imageIdentifier: "public.ecr.aws/nginx/nginx:latest",
-        imageRepositoryType: "ECR_PUBLIC",
-        imageConfiguration: { port: "80" },
-      },
-      autoDeploymentsEnabled: false,
-    }
-  : {
-      authenticationConfiguration: { accessRoleArn: appRunnerAccessRole.arn },
-      imageRepository: {
-        imageRepositoryType: "ECR",
-        imageIdentifier: pulumi.interpolate`${ecrRepo.repositoryUrl}:${imageTag}`,
-        imageConfiguration: imageConfiguration,
-      },
-      autoDeploymentsEnabled: true,
-    };
+const sourceConfiguration = pulumi
+  .all([usePublicImage, ecrRepo.repositoryUrl, imageTag, appRunnerAccessRole.arn])
+  .apply(
+    ([usePublic, repoUrl, tag, roleArn]): aws.types.input.apprunner.ServiceSourceConfiguration => {
+      if (usePublic) {
+        return {
+          imageRepository: {
+            imageIdentifier: "public.ecr.aws/nginx/nginx:latest",
+            imageRepositoryType: "ECR_PUBLIC",
+            imageConfiguration: { port: "80" },
+          },
+          autoDeploymentsEnabled: false,
+        };
+      } else {
+        return {
+          authenticationConfiguration: { accessRoleArn: roleArn },
+          imageRepository: {
+            imageRepositoryType: "ECR",
+            imageIdentifier: `${repoUrl}:${tag}`,
+            imageConfiguration: imageConfiguration,
+          },
+          autoDeploymentsEnabled: true,
+        };
+      }
+    },
+  );
 
 const appRunnerService = new aws.apprunner.Service(
   `${prefix}-ApiService`,

@@ -85,6 +85,22 @@ The web assets are uploaded to the S3 bucket under the `site/` prefix. You can v
 
 If the bucket is empty, check the GitHub Action logs for the "Sync site to S3" step.
 
+## Viewing API Logs (AWS App Runner)
+
+If the API is not behaving as expected, you can view the logs in the AWS Console:
+
+1.  Navigate to **AWS App Runner** in the AWS Console.
+2.  Select your service (e.g., `mirror-ball-sams-images-dev`).
+3.  Click on the **Logs** tab.
+4.  You will see two types of logs:
+    - **Service logs**: These contain information about the App Runner service itself (deployment, health checks, etc.).
+    - **Application logs**: These contain the output (`console.log`, `console.error`) from your Bun application.
+
+Alternatively, you can find these logs directly in **CloudWatch Logs**:
+
+- Log Group: `/aws/apprunner/<service-name>/<service-id>/application` for application output.
+- Log Group: `/aws/apprunner/<service-name>/<service-id>/service` for service lifecycle events.
+
 See also:
 
 - [Infra setup](infra-setup.md)
