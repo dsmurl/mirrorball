@@ -8,15 +8,15 @@ Simple image upload and listing site with role-based access, built as an Nx mono
 
 ## Docs
 
-- [Initial plan](docs/initial-plan.md)
 - [Infra setup](docs/infra-setup.md)
 - [AWS Access with Granted](docs/aws-granted-setup.md)
-- [CI/CD](docs/ci-cd.md)
 - [API — local development](docs/api-local-dev.md)
-- [API — deploy](docs/api-deploy.md)
-- [Frontend — local development](docs/frontend-local-dev.md)
-- [Frontend — deploy](docs/frontend-deploy.md)
-- [Runbook](docs/runbook.md)
+- [Deployment (API & Frontend)](docs/deploy.md)
+- [Post-Deployment Verification](docs/post-deployment-verification.md)
+
+## Plans
+
+- [Initial plan](docs/initial-plan.md)
 
 ## Workspace
 

@@ -255,7 +255,7 @@ M3 — API Service MVP
 - IAM roles/policies attached from `apps/infra/permissions/policies.json`
 - Config: API fetches `userRestriction` from DynamoDB and enforces the restriction for restricted endpoints.
 - Contracts: API validates inputs/outputs using shared Zod schemas; on 400/403 returns a JSON error shape defined in shared lib
-- Docs: `docs/api-local-dev.md` (how to run API locally, required env vars) and `docs/api-deploy.md` (how CI deploys API)
+- Docs: `docs/api-local-dev.md` (how to run API locally, required env vars) and `docs/deploy.md` (how CI deploys the app)
 
 M4 — Frontend (web) MVP
 
@@ -264,14 +264,14 @@ M4 — Frontend (web) MVP
 - List/search page
 - Delete (admin-only)
 - Contracts: Frontend imports shared types/schemas to type API client and optionally validate responses
-- Docs: `docs/frontend-local-dev.md` (how to run locally) and `docs/frontend-deploy.md` (CI deploy steps)
+- Docs: `docs/frontend-local-dev.md` (how to run locally) and `docs/deploy.md` (CI deploy steps)
 
 M5 — Deploy & Verify
 
 - Build site and sync to S3 `site/`
 - Build and push API image; two-stage apply: (1) provision infra, (2) wire image/env and update App Runner via `pulumi up`
 - Manual verification: login as dev/admin; upload, list/search, delete
-- Docs: `docs/runbook.md` (end-to-end runbook and verification checklist)
+- Docs: `docs/post-deployment-verification.md` (end-to-end post-deployment-verification checklist)
 - CI: `destroy.yml` workflow present and documented; requires `mirror-ball-destroyer` role to execute.
 
 #### 13) Acceptance Criteria
@@ -333,7 +333,7 @@ M5 — Deploy & Verify
 - Create App Runner service (or ECS Fargate) with execution role attached
 - Wire Pulumi stack config for the configuration table in DynamoDB. The API will fetch the `userRestriction` from this table. If empty or unset, the API will not apply any email restriction.
 - Export `apiBaseUrl`
-- Write `docs/api-local-dev.md` and `docs/api-deploy.md` (include a back-link to the root `README.md` at the top of each)
+- Write `docs/api-local-dev.md` and `docs/deploy.md` (include a back-link to the root `README.md` at the top of each)
 
 8. IAM wiring
 
@@ -348,7 +348,7 @@ M5 — Deploy & Verify
 - Implement upload + confirm, list/search, admin delete
 - Consume shared Zod schemas for typing the API client and validating selected responses
 - Build script to publish to S3 `site/`
-- Write `docs/frontend-local-dev.md` and `docs/frontend-deploy.md` (each must include a back-link to the root `README.md`)
+- Write `docs/frontend-local-dev.md` and `docs/deploy.md` (each must include a back-link to the root `README.md`)
 
 10. Deploy & test
 
@@ -358,7 +358,7 @@ M5 — Deploy & Verify
 - Upload site assets to S3 `site/`
 - Manual test scenarios for dev and admin
 - Write `docs/runbook.md` (checklist for verification; include a back-link to the root `README.md`)
-- Add `destroy.yml` workflow using OIDC to assume `mirror-ball-destroyer` and run `pulumi destroy` (document in `docs/ci-cd.md` and `docs/infra-setup.md`).
+- Add `destroy.yml` workflow using OIDC to assume `mirror-ball-destroyer` and run `pulumi destroy` (documented in `docs/infra-setup.md`).
 - Manual test scenarios for user restriction via Admin Panel.
 
 #### 15) Open Questions / Decisions to Confirm
@@ -366,7 +366,7 @@ M5 — Deploy & Verify
 - Keep single bucket with `site/` and `images/` prefixes vs separate buckets? (Plan assumes single bucket.)
 - Use Hosted UI redirect URIs tied to CloudFront domain only, or also localhost for dev? (Recommend both.)
 - Do we need full-text search on metadata? (Plan assumes simple filters/prefix scans.)
-- Prefer App Runner in target region; fallback to ECS Fargate if App Runner is unavailable. DECISION: Use App Runner in `us-west-2`.
+- Prefer App Runner in the target region; fallback to ECS Fargate if App Runner is unavailable. DECISION: Use App Runner in `us-west-2`.
 - Domain control approach: DECISION — Dynamic API-level enforcement based on DynamoDB configuration. Behavior: if unset/empty, no restriction. Admin Panel in UI allows updating this restriction.
 - DynamoDB data access:
   - Start with minimal helpers + Zod at edges (recommended for MVP), or adopt a library now?
@@ -385,20 +385,11 @@ M5 — Deploy & Verify
     - AWS requirements: IAM roles, OIDC trust for GitHub Actions, permissions boundaries if any
     - Two roles via OIDC: `mirror-ball-creator` (deploy/update) and `mirror-ball-destroyer` (destroy). Detail least-privilege policies and guardrails.
     - How CI uses Pulumi (no local CLI required)
-  - `docs/ci-cd.md`
-    - GitHub Actions workflows overview
-    - OIDC-based AWS auth (no long-lived secrets), required repo/environment secrets
-    - Job steps for: build frontend, build/push API image to ECR, `pulumi preview` on PR, two-stage deploy on main (Stage 1 infra, Stage 2 wiring)
-    - Destroy workflow: manual trigger (`workflow_dispatch`), assumes `mirror-ball-destroyer`, runs `pulumi destroy` safely.
   - `docs/api-local-dev.md`
     - How to run the Bun API locally, env vars, token testing, example curl commands
-  - `docs/api-deploy.md`
-    - How the API is built and deployed via CI (image tags, ECR, App Runner/ECS update)
-  - `docs/frontend-local-dev.md`
-    - How to run Vite app locally, env vars mapping to Pulumi outputs, auth callbacks
-  - `docs/frontend-deploy.md`
-    - How the site is built and synced to S3 via CI, cache invalidation via CloudFront (if needed)
-  - `docs/runbook.md`
+  - `docs/deploy.md`
+    - How the API and frontend are built and deployed via CI (image tags, ECR, App Runner update, S3 sync, cache invalidation)
+  - `docs/post-deployment-verification.md`
     - End-to-end operational checklist: provisioning, first-time setup, rotating secrets (if any), verifying domain restriction and role enforcement, rollback steps
 
 Preference: All deployments go through GitHub Actions using OIDC to assume AWS roles. Avoid manual `pulumi up` on developer machines.

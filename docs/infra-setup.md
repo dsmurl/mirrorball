@@ -114,15 +114,19 @@ This project uses Pulumi. You can use Pulumi Service (default) or an S3 bucket f
 - **Pulumi Service**: Run `pulumi login` locally and create an organization/project.
 - **S3 Backend**: Create an S3 bucket and set `PULUMI_BACKEND_URL=s3://<your-bucket-name>`.
 
-### 5. GitHub Secrets
+### 5. GitHub Secrets & Variables
 
-Add the following secrets to your GitHub repository:
+Add the following to your GitHub repository (using a GitHub environment called `dev` is recommended):
 
-- create a GitHub envorinment called `dev`
-- set these variables
+**Variables (Settings > Secrets and variables > Actions > Variables):**
+
 - `AWS_REGION`: e.g., `us-west-2`
-- set these secrets
-- `PULUMI_ACCESS_TOKEN`: Your Pulumi API token (if using Pulumi Service).
+- `AWS_ROLE_DEPLOYER_ARN`: The ARN of the `mirror-ball-creator` role.
+- `PROJECT_NAME`: Your project prefix (e.g., `sams-images`).
+
+**Secrets (Settings > Secrets and variables > Actions > Secrets):**
+
+- `PULUMI_ACCESS_TOKEN`: Your Pulumi API token.
 
 ### 6. Local Configuration & First Deployment
 
