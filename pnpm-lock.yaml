@@ -92,7 +92,13 @@ importers:
       "@pulumi/pulumi":
         specifier: ^3.213.0
         version: 3.213.0(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.9.3))(typescript@5.9.3)
+      dotenv:
+        specifier: ^17.2.3
+        version: 17.2.3
     devDependencies:
+      "@types/dotenv":
+        specifier: ^8.2.3
+        version: 8.2.3
       "@types/node":
         specifier: ^25.0.3
         version: 25.0.3
@@ -2038,6 +2044,13 @@ packages:
         integrity: sha512-IQ3EbTzGxIigb1I3qPZc1rWJnH0BmSKv5QYTalEwweFvyBDLSAe24zP0le/hyi7ecGfZVlIVAg4BZqb8WBwKqw==,
       }
 
+  "@types/dotenv@8.2.3":
+    resolution:
+      {
+        integrity: sha512-g2FXjlDX/cYuc5CiQvyU/6kkbP1JtmGzh0obW50zD7OKeILVL0NSpPWLXVfqoAGQjom2/SLLx9zHq0KXvD6mbw==,
+      }
+    deprecated: This is a stub types definition. dotenv provides its own type definitions, so you do not need this installed.
+
   "@types/estree@1.0.8":
     resolution:
       {
@@ -2552,6 +2565,13 @@ packages:
     resolution:
       {
         integrity: sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==,
+      }
+    engines: { node: ">=12" }
+
+  dotenv@17.2.3:
+    resolution:
+      {
+        integrity: sha512-JVUnt+DUIzu87TABbhPmNfVdBDt18BLOWjMUFJMSi/Qqg7NTYtabbvSNJGOJ7afbRuv9D/lngizHtP7QyLQ+9w==,
       }
     engines: { node: ">=12" }
 
@@ -6118,6 +6138,10 @@ snapshots:
       "@types/node": 25.0.3
       "@types/responselike": 1.0.3
 
+  "@types/dotenv@8.2.3":
+    dependencies:
+      dotenv: 17.2.3
+
   "@types/estree@1.0.8": {}
 
   "@types/google-protobuf@3.15.12": {}
@@ -6387,6 +6411,8 @@ snapshots:
       dotenv: 16.4.7
 
   dotenv@16.4.7: {}
+
+  dotenv@17.2.3: {}
 
   dunder-proto@1.0.1:
     dependencies:

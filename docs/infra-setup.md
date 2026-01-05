@@ -10,6 +10,31 @@ This document describes the Pulumi stacks, required AWS IAM roles, and GitHub OI
 - Config keys:
   - `aws:region` (string; required; the AWS region to deploy into)
 
+## PROJECT_NAME Prefix
+
+You can deploy multiple independent instances of the project by setting the `PROJECT_NAME` environment variable before running Pulumi commands. This prefix is added to all AWS resource names and tags.
+
+1.  **Create your `.env` file** (optional, for local reference):
+
+    ```bash
+    cp apps/infra/.env.example apps/infra/.env
+    # Edit apps/infra/.env to set your desired PROJECT_NAME
+    ```
+
+2.  **Run Pulumi**:
+    With `.env` configured, the project will automatically pick up `PROJECT_NAME` when you run Pulumi commands:
+
+    ```bash
+    pulumi up
+    ```
+
+    Alternatively, you can still override it in your shell:
+
+    ```bash
+    export PROJECT_NAME=cat-project
+    pulumi up
+    ```
+
 ## Kickstart Guide
 
 To get this infrastructure running in AWS for the first time:
