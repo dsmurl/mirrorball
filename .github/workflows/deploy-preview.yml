@@ -1,0 +1,78 @@
+name: Deploy Preview
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      STACK_NAME: dev
+      PROJECT_NAME: ${{ vars.PROJECT_NAME }}
+      PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile=false
+
+      - name: Typecheck
+        run: pnpm nx run-many -t typecheck --all --parallel
+
+      - name: Setup Pulumi
+        uses: pulumi/actions@v5
+        with:
+          pulumi-version: latest
+
+      - name: Configure AWS (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_DEPLOYER_ARN }}
+          aws-region: us-west-2
+
+      - name: Build API image (Verification only)
+        run: |
+          docker build -t verification-only -f apps/api/Dockerfile .
+
+      - name: Pulumi Preview
+        working-directory: apps/infra
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+          FORCE_USE_PUBLIC_IMAGE: false
+        run: |
+          pulumi config set --stack $STACK_NAME imageTag "$IMAGE_TAG"
+          pulumi preview --stack $STACK_NAME
+
+      - name: Read deploy outputs (to verify build env)
+        id: outs
+        working-directory: apps/infra
+        run: |
+          echo "cfdomain=$(pulumi stack output --stack $STACK_NAME cloudFrontDomainName)" >> $GITHUB_OUTPUT
+          echo "upId=$(pulumi stack output --stack $STACK_NAME userPoolId)" >> $GITHUB_OUTPUT
+          echo "upClientId=$(pulumi stack output --stack $STACK_NAME userPoolClientId)" >> $GITHUB_OUTPUT
+          echo "upDomain=$(pulumi stack output --stack $STACK_NAME userPoolDomain)" >> $GITHUB_OUTPUT
+
+      - name: Build web (Verification only)
+        env:
+          VITE_API_BASE_URL: https://${{ steps.outs.outputs.cfdomain }}/api
+          VITE_USER_POOL_ID: ${{ steps.outs.outputs.upId }}
+          VITE_USER_POOL_CLIENT_ID: ${{ steps.outs.outputs.upClientId }}
+          VITE_COGNITO_DOMAIN: ${{ steps.outs.outputs.upDomain }}
+        run: pnpm nx build web

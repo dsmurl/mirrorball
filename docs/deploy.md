@@ -2,8 +2,18 @@ Back to [root README](../README.md)
 
 # Deployment (via GitHub Actions)
 
-This project uses a unified GitHub Action to deploy both the API (containerized on App Runner) and the Frontend (static
-site on S3/CloudFront).
+The project includes a `deploy-preview.yml` workflow that runs automatically on Pull Requests to `main`.
+
+## Previews
+
+### What the preview workflow does
+
+1. **Typecheck**: Runs Nx typecheck across the monorepo.
+2. **Build API image**: Builds the Docker image locally to verify the `Dockerfile` and dependencies. It does _not_ push to ECR.
+3. **Pulumi Preview**: Runs `pulumi preview` for the `dev` stack, showing what infrastructure changes would occur.
+4. **Build Web**: Retrieves current stack outputs and attempts to build the web application to verify its compilation and environment variable wiring.
+
+---
 
 ## API Deployment
 
@@ -64,7 +74,6 @@ The following should be configured in your GitHub Environment (e.g., `dev`):
 - `AWS_ROLE_DEPLOYER_ARN`: The ARN of the `mirror-ball-creator` IAM role.
   - Note: Role ARNs are identifiers and are safe to store as Variables; they require OIDC trust to be assumed.
 - `PROJECT_NAME`: Your project prefix (e.g., `sams-images`).
-- `PORT`: (Optional) API port, defaults to `8080`.
 
 See also:
 
