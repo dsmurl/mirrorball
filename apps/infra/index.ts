@@ -273,7 +273,9 @@ const oac = new aws.cloudfront.OriginAccessControl(`${prefix}-Oac`, {
 });
 
 // 6) App Runner service
-const forceUsePublicImageConfig = config.getBoolean("forceUsePublicImage");
+const forceUsePublicImageEnv = process.env.FORCE_USE_PUBLIC_IMAGE;
+const forceUsePublicImage =
+  forceUsePublicImageEnv === undefined ? true : forceUsePublicImageEnv === "true";
 
 // Check if the ECR image exists (to auto-switch to Skeleton Mode if missing)
 // We use a regular Promise check because Pulumi Outputs don't support a clean .catch() or error handler for missing resources during preview
@@ -290,7 +292,7 @@ const imageExists = pulumi.all([ecrRepo.name, imageTag]).apply(async ([repoName,
 });
 
 // Logic: forceUsePublicImage "true" wins, otherwise check if the image exists
-const usePublicImage = forceUsePublicImageConfig || imageExists.apply((exists: boolean) => !exists);
+const usePublicImage = forceUsePublicImage || imageExists.apply((exists: boolean) => !exists);
 
 const imageConfiguration: aws.types.input.apprunner.ServiceSourceConfigurationImageRepositoryImageConfiguration =
   {

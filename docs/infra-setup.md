@@ -10,28 +10,31 @@ This document describes the Pulumi stacks, required AWS IAM roles, and GitHub OI
 - Config keys:
   - `aws:region` (string; required; the AWS region to deploy into)
 
-## PROJECT_NAME Prefix
+## PROJECT_NAME and FORCE_USE_PUBLIC_IMAGE Prefix
 
 You can deploy multiple independent instances of the project by setting the `PROJECT_NAME` environment variable before running Pulumi commands. This prefix is added to all AWS resource names and tags.
+
+You can also control whether to force a public Nginx image (Skeleton Mode) by setting `FORCE_USE_PUBLIC_IMAGE`.
 
 1.  **Create your `.env` file** (optional, for local reference):
 
     ```bash
     cp apps/infra/.env.example apps/infra/.env
-    # Edit apps/infra/.env to set your desired PROJECT_NAME
+    # Edit apps/infra/.env to set your desired PROJECT_NAME and FORCE_USE_PUBLIC_IMAGE
     ```
 
 2.  **Run Pulumi**:
-    With `.env` configured, the project will automatically pick up `PROJECT_NAME` when you run Pulumi commands:
+    With `.env` configured, the project will automatically pick up these variables when you run Pulumi commands:
 
     ```bash
     pulumi up
     ```
 
-    Alternatively, you can still override it in your shell:
+    Alternatively, you can still override them in your shell:
 
     ```bash
     export PROJECT_NAME=cat-project
+    export FORCE_USE_PUBLIC_IMAGE=true
     pulumi up
     ```
 
@@ -176,15 +179,15 @@ If you want to run it locally:
 To avoid the "Chicken and Egg" problem where App Runner fails because your ECR is empty, the infrastructure is designed to **automatically detect** if your image exists.
 
 1.  **Initial Deploy**: When you run `pulumi up` for the first time, Pulumi will check your ECR repository. Since it's empty, it will automatically use a public Nginx image to build your entire infrastructure (S3, CloudFront, Cognito).
-2.  **Manual Override**: If you want to force Skeleton Mode, you can use the config:
+2.  **Manual Override**: The project defaults to forcing a public image if not specified (`FORCE_USE_PUBLIC_IMAGE` defaults to `true`). If you want to **disable** Skeleton Mode and ensure Pulumi looks for your ECR image, you can set:
 
     ```bash
-    # Force Skeleton Mode
-    pulumi config set forceUsePublicImage true
-
-    # Return to auto-detection (default behavior)
-    pulumi config set forceUsePublicImage false
+    # Disable Skeleton Mode (force use of ECR image)
+    export FORCE_USE_PUBLIC_IMAGE=false
+    pulumi up
     ```
+
+    Or set it in your `.env` file.
 
 _Note on Health Checks:_ Pulumi is configured to use a static **HTTP health check** on the root path (`/`). Since the standard Nginx image returns a 200 OK on `/` and our API is also configured to handle `/`, the health check will pass for both the placeholder and your real application without needing to change the infrastructure configuration.
 
@@ -212,10 +215,13 @@ App Runner cannot start your actual API without an image in ECR. While Skeleton 
     docker push <ECR_REPOSITORY_URI>:bootstrap
     ```
 4.  **Switch from Skeleton to Real API**:
-    If you used Skeleton Mode, now tell Pulumi to use your real image:
+    Pulumi will automatically detect the new image on the next `pulumi up`. If you had manually forced Skeleton Mode (`FORCE_USE_PUBLIC_IMAGE=true`), you should unset it or set it to `false`:
     ```bash
-    cd apps/infra
-    pulumi config set forceUsePublicImage false
+    export FORCE_USE_PUBLIC_IMAGE=false
+    pulumi up
+    ```
+    Otherwise, simply run:
+    ```bash
     pulumi up
     ```
 
