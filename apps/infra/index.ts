@@ -95,18 +95,6 @@ const userPoolDomainResource = new aws.cognito.UserPoolDomain(`${prefix}-UserPoo
   userPoolId: userPool.id,
 });
 
-const userPoolClient = new aws.cognito.UserPoolClient(`${prefix}-UserPoolClient`, {
-  userPoolId: userPool.id,
-  generateSecret: false,
-  allowedOauthFlows: ["code", "implicit"],
-  allowedOauthFlowsUserPoolClient: true,
-  allowedOauthScopes: ["email", "openid", "profile"],
-  callbackUrls: ["http://localhost:5173/"],
-  logoutUrls: ["http://localhost:5173/"],
-  supportedIdentityProviders: ["COGNITO"],
-  preventUserExistenceErrors: "ENABLED",
-});
-
 // User groups: dev and admin
 const devGroup = new aws.cognito.UserGroup(`${prefix}-DevGroup`, {
   userPoolId: userPool.id,
@@ -133,7 +121,6 @@ export const imageBucketName = bucket.bucket;
 export const imagesTableName = imagesTable.name;
 export const configTableName = configTable.name;
 export const userPoolId = userPool.id;
-export const userPoolClientId = userPoolClient.id;
 export const userPoolDomain = userPoolDomainResource.domain.apply(
   (d) => `https://${d}.auth.${region}.amazoncognito.com`,
 );
@@ -461,3 +448,20 @@ const bucketPolicy = new aws.s3.BucketPolicy(`${prefix}-BucketPolicy`, {
 // Update outputs now that CloudFront is created
 export const cloudFrontDomainName = cfDistribution.domainName;
 export const cloudFrontDistributionId = cfDistribution.id;
+
+const userPoolClient = new aws.cognito.UserPoolClient(`${prefix}-UserPoolClient`, {
+  userPoolId: userPool.id,
+  generateSecret: false,
+  allowedOauthFlows: ["code", "implicit"],
+  allowedOauthFlowsUserPoolClient: true,
+  allowedOauthScopes: ["email", "openid", "profile"],
+  callbackUrls: [
+    "http://localhost:5173/",
+    pulumi.interpolate`https://${cfDistribution.domainName}/`,
+  ],
+  logoutUrls: ["http://localhost:5173/", pulumi.interpolate`https://${cfDistribution.domainName}/`],
+  supportedIdentityProviders: ["COGNITO"],
+  preventUserExistenceErrors: "ENABLED",
+});
+
+export const userPoolClientId = userPoolClient.id;
