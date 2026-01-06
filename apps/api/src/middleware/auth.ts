@@ -19,7 +19,10 @@ export async function authenticate(
   const auth = req.headers.get("authorization") || req.headers.get("Authorization");
   if (!auth || !auth.startsWith("Bearer ")) return error(401, "Missing Bearer token");
   const token = auth.slice("Bearer ".length);
-  if (!jwks) return error(500, "Auth not configured");
+  if (!jwks) {
+    console.error(`[auth] jwks not initialized. USER_POOL_ID: "${USER_POOL_ID}", REGION: "${REGION}"`);
+    return error(500, "Auth not configured");
+  }
   try {
     const { payload } = await jose.jwtVerify(token, jwks, {
       issuer: `https://cognito-idp.${REGION}.amazonaws.com/${USER_POOL_ID}`,
@@ -64,6 +67,7 @@ export async function authenticate(
 
     return { claims: payload as Claims, groups };
   } catch (e) {
+    console.error(`[auth] JWT validation failed: ${String(e)}`);
     return error(401, "Invalid token", String(e));
   }
 }
