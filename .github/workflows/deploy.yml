@@ -57,8 +57,9 @@ jobs:
           ECR_REPO: ${{ steps.ecr.outputs.repo }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t "$ECR_REPO:$IMAGE_TAG" -f apps/api/Dockerfile .
+          docker build -t "$ECR_REPO:$IMAGE_TAG" -t "$ECR_REPO:dev-current" -f apps/api/Dockerfile .
           docker push "$ECR_REPO:$IMAGE_TAG"
+          docker push "$ECR_REPO:dev-current"
 
       - name: Set imageTag config (Stage 2 wiring)
         working-directory: apps/infra

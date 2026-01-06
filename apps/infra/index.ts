@@ -21,7 +21,7 @@ const commonTags = {
   managedBy: "pulumi",
   environment: stackName,
 };
-const imageTag = config.get("imageTag") ?? "bootstrap"; // CI sets this in Stage 2
+const imageTag = config.get("imageTag") ?? "dev-current"; // CI sets this to github.sha in Stage 2
 
 // 1) S3 bucket (private) with prefixes for site/ and images/
 const bucket = new aws.s3.Bucket(`${prefix}-Bucket`, {
@@ -263,9 +263,10 @@ const oac = new aws.cloudfront.OriginAccessControl(`${prefix}-Oac`, {
 const forceUsePublicImageEnv = process.env.FORCE_USE_PUBLIC_IMAGE;
 console.log(`[infra] process.env.FORCE_USE_PUBLIC_IMAGE: "${forceUsePublicImageEnv}"`);
 
-// Check if the ECR image exists (to auto-switch to Skeleton Mode if missing)
-// We use a regular Promise check because Pulumi Outputs don't support a clean .catch() or error handler for missing resources during preview
-const imageExists = pulumi.all([ecrRepo.name, imageTag]).apply(async ([repoName, tag]) => {
+// Check if the ECR repository is initialized (has at least the 'dev-current' tag)
+// This is used to auto-switch from Skeleton Mode (Nginx) to ECR Mode.
+const imageExists = ecrRepo.name.apply(async (repoName) => {
+  const tag = "dev-current";
   console.log(`[infra] imageExists check starting for ${repoName}:${tag}`);
   try {
     const img = await aws.ecr.getImage({
@@ -279,7 +280,9 @@ const imageExists = pulumi.all([ecrRepo.name, imageTag]).apply(async ([repoName,
     return exists;
   } catch (err: any) {
     // If it's a RepositoryNotFoundException or ImageNotFoundException, it's expected for skeleton mode
-    console.log(`[infra] imageExists error for ${repoName}:${tag}: ${err.message || err}`);
+    console.log(
+      `[infra] dev-current image not found during imageExists() for ${repoName}:${tag}: ${err.message || err}`,
+    );
     return false;
   }
 });
