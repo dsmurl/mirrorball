@@ -54,7 +54,6 @@ export async function setConfig(req: Request) {
 }
 
 export async function getConfig(req: Request) {
-  console.log("[config-controller] getConfig called");
   const auth = await authenticate(req);
   if (auth instanceof Response) {
     console.log("[config-controller] Auth failed in getConfig");

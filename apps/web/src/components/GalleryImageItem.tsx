@@ -1,4 +1,6 @@
 import { ImageItem } from "@mirror-ball/shared-schemas/image.ts";
+import { useAuthContext } from "../contexts/AuthContext.tsx";
+import { useDeleteImage } from "../hooks/useDeleteImage.ts";
 
 type GalleryImageItemProps = {
   img: ImageItem;
@@ -13,11 +15,20 @@ function formatFileSize(bytes?: number) {
 }
 
 export const GalleryImageItem = ({ img, onCopyLink }: GalleryImageItemProps) => {
+  const { isAdmin, token } = useAuthContext();
+  const deleteMutation = useDeleteImage(token);
+
   const isPdf = img.originalFileName?.toLowerCase().endsWith(".pdf");
 
   const imagePublicUrl = img.publicUrl.startsWith("/")
     ? `${window.location.origin}${img.publicUrl}`
     : img.publicUrl;
+
+  const handleDelete = () => {
+    if (window.confirm(`Are you sure you want to delete "${img.title}"?`)) {
+      deleteMutation.mutate(img.imageId);
+    }
+  };
 
   return (
     <div style={{ border: "1px solid #eee", borderRadius: 8, overflow: "hidden" }}>
@@ -73,20 +84,20 @@ export const GalleryImageItem = ({ img, onCopyLink }: GalleryImageItemProps) => 
         <div style={{ color: "#666", marginBottom: 8, wordBreak: "break-word" }}>
           {img.owner} • {new Date(img.uploadTime).toLocaleDateString()}
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 4 }}>
-          <div
-            style={{
-              color: "#007bff",
-              fontSize: "0.85em",
-              wordBreak: "break-all",
-            }}
-          >
-            {imagePublicUrl}
-          </div>
+        <div
+          style={{
+            color: "#007bff",
+            fontSize: "0.85em",
+            wordBreak: "break-all",
+            marginBottom: 4,
+          }}
+        >
+          {imagePublicUrl}
+        </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 4 }}>
           <button
             onClick={() => onCopyLink(imagePublicUrl)}
             style={{
-              alignSelf: "flex-start",
               background: "none",
               border: "none",
               color: "#007bff",
@@ -99,6 +110,24 @@ export const GalleryImageItem = ({ img, onCopyLink }: GalleryImageItemProps) => 
           >
             copy link
           </button>
+          {isAdmin && (
+            <button
+              onClick={handleDelete}
+              disabled={deleteMutation.isPending}
+              style={{
+                background: "none",
+                border: "none",
+                color: "#dc3545",
+                cursor: "pointer",
+                fontSize: "0.85em",
+                padding: "4px 0",
+                textDecoration: "underline",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {deleteMutation.isPending ? "deleting..." : "delete"}
+            </button>
+          )}
         </div>
       </div>
     </div>

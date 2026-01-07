@@ -41,14 +41,13 @@ export async function fetchFullConfig(): Promise<AppConfig> {
     );
 
     if (res.Item) {
-      console.log("[config-service] Found existing config");
       const { configKey, updatedAt, ...config } = res.Item;
       cachedConfig = config as AppConfig;
       lastFetchTime = now;
     } else {
       console.log("[config-service] No config found, initializing...");
       cachedConfig = defaultAppConfig;
-      // We don't set lastFetchTime here so the next call will try to fetch (and potentially initialize) again.
+      // We don't set lastFetchTime here, so the next call will try to fetch (and potentially initialize) again.
       // This is safer in case the PutCommand below fails or if another instance is also initializing.
       lastFetchTime = 0;
 

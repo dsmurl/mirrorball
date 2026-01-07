@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { ImageItemSchema } from "@mirror-ball/shared-schemas/image";
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
-import { ScanCommand, DeleteCommand } from "@aws-sdk/lib-dynamodb";
+import { ScanCommand, DeleteCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
 import { s3, doc } from "../lib/aws.ts";
 import { BUCKET_NAME, IMAGE_TABLE_NAME } from "../lib/config.ts";
 import { json, error, notFound } from "../lib/responses.ts";
@@ -54,15 +54,13 @@ export async function deleteImage(req: Request) {
 
   // Fetch item to get s3Key
   const data = await doc.send(
-    new ScanCommand({
+    new GetCommand({
       TableName: IMAGE_TABLE_NAME,
-      Limit: 1,
-      FilterExpression: "imageId = :id",
-      ExpressionAttributeValues: { ":id": imageId },
+      Key: { imageId },
     }),
   );
 
-  const item = (data.Items ?? [])[0];
+  const item = data.Item;
   if (!item) return notFound();
   const key = item.s3Key as string;
 

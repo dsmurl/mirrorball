@@ -56,7 +56,6 @@ export async function authenticate(
 
     // Enforce dynamic userRestriction from DynamoDB
     const userRestriction = await fetchUserRestriction();
-    console.log(`[auth] userRestriction: "${userRestriction}", user email: "${payload.email}"`);
 
     if (
       userRestriction &&
